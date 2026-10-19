@@ -62,11 +62,13 @@ export function AppShell({ title, nav }: { title: string; nav: NavItem[] }) {
 
 export function Brand() {
   return (
-    <div className="flex items-center gap-2">
-      <span className="grid size-9 place-items-center rounded-lg bg-gold text-navy">
-        <Anchor className="size-5" />
-      </span>
-      <span className="font-display text-lg font-bold">منصة الإبحار</span>
+    <div className="flex items-center gap-3">
+      <img
+        src="/assets/aistudio/1792226093974_15388eac.jpg"
+        alt="شعار منصة الأستاذ سعيد مطر"
+        className="size-10 rounded-full object-cover border border-gold/40 shadow-sm"
+      />
+      <span className="font-display text-lg font-bold">منصة الأستاذ سعيد مطر</span>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
-import { Anchor, KeyRound, Loader2, Mail, MessageCircle } from "lucide-react";
+import { KeyRound, Loader2, Mail, MessageCircle } from "lucide-react";
 import { getArabicAuthErrorMessage, setSessionCookies } from "@/lib/auth-client";
 import { loginServerFn } from "@/lib/auth-server";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,12 +30,12 @@ export const Route = createFileRoute("/")({
   }),
   head: () => ({
     meta: [
-      { title: "تسجيل الدخول | منصة الإبحار" },
+      { title: "تسجيل الدخول | منصة الأستاذ سعيد مطر" },
       {
         name: "description",
-        content: "سجّل دخولك إلى منصة الإبحار لتعلّم التاريخ مع الأستاذ سعيد سيد عبد الفتاح مطر.",
+        content: "سجّل دخولك إلى منصة الأستاذ سعيد مطر لتعلّم التاريخ.",
       },
-      { property: "og:title", content: "تسجيل الدخول | منصة الإبحار" },
+      { property: "og:title", content: "تسجيل الدخول | منصة الأستاذ سعيد مطر" },
       { property: "og:description", content: "منصة تعليمية متخصصة في مادة التاريخ." },
     ],
   }),
@@ -44,7 +44,8 @@ export const Route = createFileRoute("/")({
 
 // TODO: replace with the real WhatsApp number
 const WHATSAPP =
-  "https://wa.me/?text=" + encodeURIComponent("السلام عليكم، أرغب في طلب حساب على منصة الإبحار");
+  "https://wa.me/?text=" +
+  encodeURIComponent("السلام عليكم، أرغب في طلب حساب على منصة الأستاذ سعيد مطر");
 
 function Login() {
   const router = useRouter();
@@ -132,16 +133,21 @@ function Login() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      <section className="flex flex-col justify-between bg-gradient-navy p-8 text-navy-foreground sm:p-12">
-        <div className="flex items-center gap-3">
-          <span className="grid size-11 place-items-center rounded-xl bg-gold text-navy">
-            <Anchor className="size-6" />
-          </span>
-          <span className="text-sm tracking-wide text-gold">Al-Ibhhar Platform</span>
+      <section
+        className="relative flex flex-col justify-between p-8 text-navy-foreground sm:p-12 bg-cover bg-center overflow-hidden"
+        style={{ backgroundImage: `url('/assets/aistudio/1792226093974_15388eac.jpg')` }}
+      >
+        <div className="relative z-10 flex items-center gap-3">
+          <img
+            src="/assets/aistudio/1792226093974_15388eac.jpg"
+            alt="شعار المنصة"
+            className="size-11 rounded-full object-cover border-2 border-gold shadow-md"
+          />
+          <span className="text-sm tracking-wide text-gold">منصة الأستاذ سعيد مطر</span>
         </div>
-        <div className="my-10">
-          <h1 className="text-4xl font-bold leading-tight sm:text-5xl">
-            منصة <span className="text-gold">الإبحار</span>
+        <div className="relative z-10 my-10">
+          <h1 className="text-3xl font-bold leading-tight sm:text-4xl">
+            منصة <span className="text-gold">الأستاذ سعيد مطر</span>
           </h1>
           <p className="mt-4 max-w-md text-lg leading-8 text-navy-foreground/80">
             رحلتك في أعماق التاريخ تبدأ هنا؛ محاضرات مصوّرة وتدريبات منظّمة تصنع فهمًا لا يُنسى.

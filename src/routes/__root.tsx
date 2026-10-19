@@ -78,15 +78,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "منصة الإبحار | Al-Ibhhar Platform" },
+      { title: "منصة الأستاذ سعيد مطر | Al-Ibhhar Platform" },
       {
         name: "description",
-        content: "منصة الإبحار لتعليم التاريخ مع الأستاذ سعيد سيد عبد الفتاح مطر.",
+        content: "منصة الأستاذ سعيد مطر لتعليم التاريخ.",
       },
-      { property: "og:title", content: "منصة الإبحار | Al-Ibhhar Platform" },
+      { property: "og:title", content: "منصة الأستاذ سعيد مطر | Al-Ibhhar Platform" },
       {
         property: "og:description",
-        content: "منصة الإبحار لتعليم التاريخ مع الأستاذ سعيد سيد عبد الفتاح مطر.",
+        content: "منصة الأستاذ سعيد مطر لتعليم التاريخ.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
