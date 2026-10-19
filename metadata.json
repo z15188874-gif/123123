@@ -1,0 +1,6 @@
+{
+  "name": "منصة الإبحار | Al-Ibhhar Platform",
+  "description": "منصة الإبحار لتعليم التاريخ مع الأستاذ سعيد سيد عبد الفتاح مطر.",
+  "permissions": [],
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
