@@ -4,6 +4,7 @@ import { KeyRound, Loader2, Mail, MessageCircle } from "lucide-react";
 import { getArabicAuthErrorMessage, setSessionCookies } from "@/lib/auth-client";
 import { loginServerFn } from "@/lib/auth-server";
 import { supabase } from "@/integrations/supabase/client";
+import { DeveloperCard } from "@/components/DeveloperCard";
 
 export function validateLoginEmail(input: string): { valid: boolean; error?: string } {
   const cleanEmail = input.trim();
@@ -134,30 +135,37 @@ function Login() {
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       <section
-        className="relative flex flex-col justify-between p-8 text-navy-foreground sm:p-12 bg-cover bg-center overflow-hidden"
-        style={{ backgroundImage: `url('/assets/aistudio/1792226093974_15388eac.jpg')` }}
+        className="relative flex flex-col justify-between p-8 text-white sm:p-12 bg-slate-900 overflow-hidden"
       >
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-85 pointer-events-none"
+          style={{ backgroundImage: `url('/assets/aistudio/1792226093974_15388eac.jpg')` }}
+        />
+        <div
+          className="absolute inset-0 bg-black/25 pointer-events-none"
+        />
+
         <div className="relative z-10 flex items-center gap-3">
           <img
             src="/assets/aistudio/1792226093974_15388eac.jpg"
             alt="شعار المنصة"
             className="size-11 rounded-full object-cover border-2 border-gold shadow-md"
           />
-          <span className="text-sm tracking-wide text-gold">منصة الأستاذ سعيد مطر</span>
+          <span className="text-sm tracking-wide text-gold font-medium drop-shadow">منصة الأستاذ سعيد مطر</span>
         </div>
         <div className="relative z-10 my-10">
-          <h1 className="text-3xl font-bold leading-tight sm:text-4xl">
+          <h1 className="text-3xl font-bold leading-tight sm:text-4xl text-white drop-shadow-md">
             منصة <span className="text-gold">الأستاذ سعيد مطر</span>
           </h1>
-          <p className="mt-4 max-w-md text-lg leading-8 text-navy-foreground/80">
+          <p className="mt-4 max-w-md text-lg leading-8 text-white/95 drop-shadow">
             رحلتك في أعماق التاريخ تبدأ هنا؛ محاضرات مصوّرة وتدريبات منظّمة تصنع فهمًا لا يُنسى.
           </p>
           <div className="mt-8 border-r-2 border-gold pr-4">
-            <p className="text-xs text-navy-foreground/60">المحاضر</p>
-            <p className="font-display text-xl">أ. سعيد سيد عبد الفتاح مطر</p>
+            <p className="text-xs text-white/80 font-medium drop-shadow">المحاضر</p>
+            <p className="font-display text-xl text-white drop-shadow">أ. سعيد سيد عبد الفتاح مطر</p>
           </div>
         </div>
-        <p className="text-xs text-navy-foreground/50">تصميم وتطوير م. زياد علي محمد خزيم</p>
+        <p className="relative z-10 text-sm font-display text-gold font-bold drop-shadow">تصميم وتطوير م. زياد علي محمد محمد خزيم (القائد)</p>
       </section>
 
       <section className="flex items-center justify-center p-6 sm:p-12">
@@ -243,6 +251,10 @@ function Login() {
           <p className="mt-3 text-center text-xs text-muted-foreground">
             الحسابات تُنشأ وتُفعّل من قِبل الإدارة فقط.
           </p>
+
+          <div className="mt-6">
+            <DeveloperCard />
+          </div>
         </div>
       </section>
     </div>
