@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { PlayCircle, Plus, Trash2, Edit, Loader2, Eye, EyeOff } from "lucide-react";
@@ -125,7 +126,10 @@ function AdminLectures() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {lessons.map((les: any) => (
-            <div key={les.id} className="rounded-2xl border bg-card p-5 shadow-card flex flex-col justify-between">
+            <div
+              key={les.id}
+              className="rounded-2xl border bg-card p-5 shadow-card flex flex-col justify-between"
+            >
               <div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
@@ -133,7 +137,9 @@ function AdminLectures() {
                   </span>
                   <span
                     className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                      les.published ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"
+                      les.published
+                        ? "bg-emerald-100 text-emerald-800"
+                        : "bg-amber-100 text-amber-800"
                     }`}
                   >
                     {les.published ? "منشور" : "مسودة"}
@@ -231,11 +237,7 @@ function AdminLectures() {
               <Label htmlFor="pub-switch" className="cursor-pointer font-medium">
                 نشر المحاضرة للطلاب
               </Label>
-              <Switch
-                id="pub-switch"
-                checked={published}
-                onCheckedChange={setPublished}
-              />
+              <Switch id="pub-switch" checked={published} onCheckedChange={setPublished} />
             </div>
             <div className="flex justify-end gap-2 pt-4">
               <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
@@ -25,6 +26,23 @@ function getAdminSupabase() {
       autoRefreshToken: false,
     },
   });
+}
+
+export function parseQuizDescription(rawDesc: string | null) {
+  if (!rawDesc) return { desc: "", questions: [], maxAttempts: 1 };
+  try {
+    const parsed = JSON.parse(rawDesc);
+    if (parsed && typeof parsed === "object" && Array.isArray(parsed.questions)) {
+      return {
+        desc: parsed.desc || "",
+        questions: parsed.questions,
+        maxAttempts: typeof parsed.maxAttempts === "number" ? parsed.maxAttempts : 1,
+      };
+    }
+  } catch {
+    // Plain text description
+  }
+  return { desc: rawDesc, questions: [], maxAttempts: 1 };
 }
 
 // 1. Dashboard Stats
@@ -72,7 +90,6 @@ export const createStudentFn = createServerFn({ method: "POST" })
   })
   .handler(async ({ data }) => {
     const supabase = getAdminSupabase();
-    // Create auth user using admin API
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email: data.email.trim(),
       password: data.password,
@@ -87,7 +104,6 @@ export const createStudentFn = createServerFn({ method: "POST" })
 
     const userId = authData.user.id;
 
-    // Upsert profile
     const { error: profileError } = await supabase.from("profiles").upsert({
       id: userId,
       full_name: data.fullName.trim(),
@@ -160,10 +176,19 @@ export const getLessonsFn = createServerFn({ method: "GET" })
 
 export const saveLessonFn = createServerFn({ method: "POST" })
   .middleware([requireAdminAuth])
-  .validator((input: { id?: string; title: string; description?: string; grade?: string; videoUrl?: string; published?: boolean }) => {
-    if (!input.title) throw new Error("عنوان المحاضرة مطلوب");
-    return input;
-  })
+  .validator(
+    (input: {
+      id?: string;
+      title: string;
+      description?: string;
+      grade?: string;
+      videoUrl?: string;
+      published?: boolean;
+    }) => {
+      if (!input.title) throw new Error("عنوان المحاضرة مطلوب");
+      return input;
+    },
+  )
   .handler(async ({ data }) => {
     const supabase = getAdminSupabase();
     const payload = {
@@ -209,20 +234,44 @@ export const getQuizzesFn = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false });
 
     if (error) throw new Error(error.message);
-    return data || [];
+    return (data || []).map((q: any) => {
+      const parsed = parseQuizDescription(q.description);
+      return {
+        ...q,
+        parsedDescription: parsed.desc,
+        questions: parsed.questions,
+        maxAttempts: parsed.maxAttempts,
+      };
+    });
   });
 
 export const saveQuizFn = createServerFn({ method: "POST" })
   .middleware([requireAdminAuth])
-  .validator((input: { id?: string; title: string; description?: string; grade?: string; published?: boolean }) => {
-    if (!input.title) throw new Error("عنوان التدريب مطلوب");
-    return input;
-  })
+  .validator(
+    (input: {
+      id?: string;
+      title: string;
+      description?: string;
+      grade?: string;
+      published?: boolean;
+      questions?: any[];
+      maxAttempts?: number;
+    }) => {
+      if (!input.title) throw new Error("عنوان التدريب مطلوب");
+      return input;
+    },
+  )
   .handler(async ({ data }) => {
     const supabase = getAdminSupabase();
+    const quizContent = {
+      desc: data.description?.trim() || "",
+      questions: data.questions || [],
+      maxAttempts: typeof data.maxAttempts === "number" ? data.maxAttempts : 1,
+    };
+
     const payload = {
       title: data.title.trim(),
-      description: data.description?.trim() || null,
+      description: JSON.stringify(quizContent),
       grade: data.grade?.trim() || null,
       published: data.published ?? false,
     };
@@ -251,40 +300,90 @@ export const deleteQuizFn = createServerFn({ method: "POST" })
     return { success: true };
   });
 
-// 5. Results Management
 export const getResultsFn = createServerFn({ method: "GET" })
   .middleware([requireAdminAuth])
   .handler(async () => {
     const supabase = getAdminSupabase();
     const { data, error } = await supabase
       .from("quiz_attempts")
-      .select(`
-        id,
-        score,
-        total_points,
-        submitted_at,
-        quiz:quizzes(title),
-        student:profiles(full_name, grade)
-      `)
+      .select(
+        `
+        *,
+        student:profiles(id, full_name, grade),
+        quiz:quizzes(id, title)
+      `,
+      )
       .order("submitted_at", { ascending: false });
 
     if (error) throw new Error(error.message);
     return data || [];
   });
 
-// 6. Student Side Content Functions
 export const getStudentContentFn = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
     const supabase = getAdminSupabase();
-    const [lessonsRes, quizzesRes] = await Promise.all([
-      supabase.from("lessons").select("*").eq("published", true).order("created_at", { ascending: false }),
-      supabase.from("quizzes").select("*").eq("published", true).order("created_at", { ascending: false }),
-    ]);
+    const user = context.user;
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("grade")
+      .eq("id", user.id)
+      .single();
+
+    const studentGrade = profile?.grade;
+
+    let lessonsQuery = supabase
+      .from("lessons")
+      .select("*")
+      .eq("published", true)
+      .order("created_at", { ascending: false });
+
+    if (studentGrade) {
+      lessonsQuery = lessonsQuery.or(`grade.is.null,grade.eq.${studentGrade}`);
+    }
+
+    const { data: lessons } = await lessonsQuery;
+
+    let quizzesQuery = supabase
+      .from("quizzes")
+      .select("*")
+      .eq("published", true)
+      .order("created_at", { ascending: false });
+
+    if (studentGrade) {
+      quizzesQuery = quizzesQuery.or(`grade.is.null,grade.eq.${studentGrade}`);
+    }
+
+    const { data: quizzesData } = await quizzesQuery;
+
+    const { data: attempts } = await supabase
+      .from("quiz_attempts")
+      .select("*")
+      .eq("student_id", user.id);
+
+    const attemptsMap = new Map<string, number>();
+    (attempts || []).forEach((att) => {
+      const count = attemptsMap.get(att.quiz_id) || 0;
+      attemptsMap.set(att.quiz_id, count + 1);
+    });
+
+    const quizzes = (quizzesData || []).map((q: any) => {
+      const parsed = parseQuizDescription(q.description);
+      const attemptCount = attemptsMap.get(q.id) || 0;
+      return {
+        ...q,
+        parsedDescription: parsed.desc,
+        questions: parsed.questions,
+        maxAttempts: parsed.maxAttempts,
+        attemptCount,
+      };
+    });
 
     return {
-      lessons: lessonsRes.data || [],
-      quizzes: quizzesRes.data || [],
+      lessons: lessons || [],
+      quizzes,
+      studentGrade,
     };
   });
 
@@ -296,9 +395,11 @@ export const submitQuizAttemptFn = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     const supabase = getAdminSupabase();
+    const user = context.user;
+
     const { error } = await supabase.from("quiz_attempts").insert({
       quiz_id: data.quizId,
-      student_id: context.userId,
+      student_id: user.id,
       score: data.score,
       total_points: data.totalPoints,
     });

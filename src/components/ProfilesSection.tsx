@@ -25,7 +25,8 @@ export function DeveloperCard() {
   const developerName = "المهندس زياد علي محمد محمد خزيم خاطر (القائد)";
   const profileLabel = "الملف التعريفي للمطوّر";
   const profession = "مصمم ومطوّر الموقع";
-  const developmentText = "تم تطوير هذا الموقع عن طريق المهندس زياد علي محمد محمد خزيم خاطر (القائد)";
+  const developmentText =
+    "تم تطوير هذا الموقع عن طريق المهندس زياد علي محمد محمد خزيم خاطر (القائد)";
   const bioText =
     "أسعى إلى تصميم وتطوير المواقع الإلكترونية والتطبيقات بأسلوب احترافي يجمع بين الجودة والإبداع وسهولة الاستخدام، مع الحرص على تقديم حلول تقنية بأسعار مناسبة للجميع.";
   const whatsappNumber = "201102161231";
@@ -104,7 +105,9 @@ export function DeveloperCard() {
                 <ZoomIn className="size-8" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mb-2">اضغط على الصورة لتكبيرها وعرضها بحجم كامل</p>
+            <p className="text-xs text-muted-foreground mb-2">
+              اضغط على الصورة لتكبيرها وعرضها بحجم كامل
+            </p>
 
             <h3 className="text-lg font-bold text-foreground">{developerName}</h3>
             <p className="text-xs text-primary font-medium mt-1">{profession}</p>
@@ -128,11 +131,7 @@ export function DeveloperCard() {
                 تواصل عبر واتساب ({displayWhatsapp})
               </a>
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => setIsOpen(false)}
-              className="w-full sm:w-auto"
-            >
+            <Button variant="outline" onClick={() => setIsOpen(false)} className="w-full sm:w-auto">
               إغلاق
             </Button>
           </div>
@@ -150,11 +149,7 @@ export function DeveloperCard() {
           </div>
           <div className="p-2 flex justify-between items-center text-white">
             <span className="text-sm font-semibold">{developerName}</span>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setIsZoomedOpen(false)}
-            >
+            <Button variant="secondary" size="sm" onClick={() => setIsZoomedOpen(false)}>
               إغلاق العرض
             </Button>
           </div>
@@ -171,7 +166,8 @@ export function TeacherCard() {
   const teacherName = "الأستاذ سعيد سيد عبد الفتاح مطر";
   const profileLabel = "الملف التعريفي للمعلم";
   const profession = "مدرّس أول مادتي التاريخ والجغرافيا";
-  const introText = "مدرّس أول مادتي التاريخ والجغرافيا، يسعى لتقديم المحتوى التعليمي بأسلوب واضح ومتميز.";
+  const introText =
+    "مدرّس أول مادتي التاريخ والجغرافيا، يسعى لتقديم المحتوى التعليمي بأسلوب واضح ومتميز.";
   const bioText =
     "الأستاذ سعيد مطر، مدرّس أول مادتي التاريخ والجغرافيا، يسعى إلى تقديم المحتوى التعليمي بأسلوب واضح ومنظّم يساعد الطلاب على فهم المعلومات واستيعابها، ويهدف إلى تسهيل دراسة التاريخ والجغرافيا من خلال منصة تعليمية منظّمة وسهلة الاستخدام.";
   const teacherPhotoUrl = "/assets/aistudio/IMG_0677_cb50d715.jpeg";
@@ -248,7 +244,9 @@ export function TeacherCard() {
                 <ZoomIn className="size-8" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mb-2">اضغط على الصورة لتكبيرها وعرضها بحجم كامل</p>
+            <p className="text-xs text-muted-foreground mb-2">
+              اضغط على الصورة لتكبيرها وعرضها بحجم كامل
+            </p>
 
             <h3 className="text-lg font-bold text-foreground">{teacherName}</h3>
             <p className="text-xs text-primary font-medium mt-1">{profession}</p>
@@ -259,11 +257,7 @@ export function TeacherCard() {
           </div>
 
           <div className="flex justify-end mt-2">
-            <Button
-              variant="outline"
-              onClick={() => setIsOpen(false)}
-              className="w-full sm:w-auto"
-            >
+            <Button variant="outline" onClick={() => setIsOpen(false)} className="w-full sm:w-auto">
               إغلاق
             </Button>
           </div>
@@ -281,11 +275,7 @@ export function TeacherCard() {
           </div>
           <div className="p-2 flex justify-between items-center text-white">
             <span className="text-sm font-semibold">{teacherName}</span>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setIsZoomedOpen(false)}
-            >
+            <Button variant="secondary" size="sm" onClick={() => setIsZoomedOpen(false)}>
               إغلاق العرض
             </Button>
           </div>

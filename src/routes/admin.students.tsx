@@ -1,9 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Users, Plus, Trash2, Edit, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/AppShell";
 import { adminHead } from "@/components/AdminPage";
-import { getStudentsFn, createStudentFn, updateStudentFn, deleteStudentFn } from "@/lib/admin-server";
+import {
+  getStudentsFn,
+  createStudentFn,
+  updateStudentFn,
+  deleteStudentFn,
+} from "@/lib/admin-server";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -148,11 +154,7 @@ function AdminStudents() {
                     {new Date(st.created_at).toLocaleDateString("ar-EG")}
                   </td>
                   <td className="p-4 text-left space-x-2 space-x-reverse">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleOpenEdit(st)}
-                    >
+                    <Button size="sm" variant="outline" onClick={() => handleOpenEdit(st)}>
                       <Edit className="size-4" />
                     </Button>
                     <Button
@@ -179,7 +181,9 @@ function AdminStudents() {
         <DialogContent className="text-right" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-primary">إضافة طالب جديد</DialogTitle>
-            <DialogDescription>أنشئ حساباً جديداً للطالب بالبريد الإلكتروني وكلمة المرور.</DialogDescription>
+            <DialogDescription>
+              أنشئ حساباً جديداً للطالب بالبريد الإلكتروني وكلمة المرور.
+            </DialogDescription>
           </DialogHeader>
           <form
             onSubmit={(e) => {
@@ -242,8 +246,12 @@ function AdminStudents() {
       <Dialog open={!!editingStudent} onOpenChange={(open) => !open && setEditingStudent(null)}>
         <DialogContent className="text-right" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-primary">تعديل بيانات الطالب</DialogTitle>
-            <DialogDescription>تعديل اسم الطالب، صفه الدراسي، أو كلمة المرور الجديدة.</DialogDescription>
+            <DialogTitle className="text-xl font-bold text-primary">
+              تعديل بيانات الطالب
+            </DialogTitle>
+            <DialogDescription>
+              تعديل اسم الطالب، صفه الدراسي، أو كلمة المرور الجديدة.
+            </DialogDescription>
           </DialogHeader>
           <form
             onSubmit={(e) => {
@@ -261,18 +269,11 @@ function AdminStudents() {
           >
             <div>
               <Label>الاسم الكامل</Label>
-              <Input
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-              />
+              <Input required value={fullName} onChange={(e) => setFullName(e.target.value)} />
             </div>
             <div>
               <Label>الصف الدراسي</Label>
-              <Input
-                value={grade}
-                onChange={(e) => setGrade(e.target.value)}
-              />
+              <Input value={grade} onChange={(e) => setGrade(e.target.value)} />
             </div>
             <div>
               <Label>كلمة المرور الجديدة (اختياري)</Label>

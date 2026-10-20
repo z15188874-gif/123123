@@ -134,16 +134,12 @@ function Login() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      <section
-        className="relative flex flex-col justify-between p-8 text-white sm:p-12 bg-slate-900 overflow-hidden"
-      >
+      <section className="relative flex flex-col justify-between p-8 text-white sm:p-12 bg-slate-900 overflow-hidden lg:rounded-l-[3rem] lg:my-6 lg:mr-6 shadow-2xl">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-85 pointer-events-none"
           style={{ backgroundImage: `url('/assets/aistudio/1792226093974_15388eac.jpg')` }}
         />
-        <div
-          className="absolute inset-0 bg-black/25 pointer-events-none"
-        />
+        <div className="absolute inset-0 bg-black/25 pointer-events-none" />
 
         <div className="relative z-10 flex items-center gap-3">
           <img
@@ -151,7 +147,9 @@ function Login() {
             alt="شعار المنصة"
             className="size-11 rounded-full object-cover border-2 border-gold shadow-md"
           />
-          <span className="text-sm tracking-wide text-gold font-medium drop-shadow">منصة الأستاذ سعيد مطر</span>
+          <span className="text-sm tracking-wide text-gold font-medium drop-shadow">
+            منصة الأستاذ سعيد مطر
+          </span>
         </div>
         <div className="relative z-10 my-10">
           <h1 className="text-3xl font-bold leading-tight sm:text-4xl text-white drop-shadow-md">
@@ -162,10 +160,14 @@ function Login() {
           </p>
           <div className="mt-8 border-r-2 border-gold pr-4">
             <p className="text-xs text-white/80 font-medium drop-shadow">المحاضر</p>
-            <p className="font-display text-xl text-white drop-shadow">أ. سعيد سيد عبد الفتاح مطر</p>
+            <p className="font-display text-xl text-white drop-shadow">
+              أ. سعيد سيد عبد الفتاح مطر
+            </p>
           </div>
         </div>
-        <p className="relative z-10 text-sm font-display text-gold font-bold drop-shadow">تصميم وتطوير م. زياد علي محمد محمد خزيم (القائد)</p>
+        <p className="relative z-10 text-sm font-display text-gold font-bold drop-shadow">
+          تصميم وتطوير م. زياد علي محمد محمد خزيم (القائد)
+        </p>
       </section>
 
       <section className="flex items-center justify-center p-6 sm:p-12">

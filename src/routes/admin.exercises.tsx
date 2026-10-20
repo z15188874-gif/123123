@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ClipboardList, Plus, Trash2, Edit, Loader2 } from "lucide-react";
+import { ClipboardList, Plus, Trash2, Edit, Loader2, HelpCircle } from "lucide-react";
 import { PageHeader } from "@/components/AppShell";
 import { adminHead } from "@/components/AdminPage";
 import { getQuizzesFn, saveQuizFn, deleteQuizFn } from "@/lib/admin-server";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +21,7 @@ import {
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/exercises")({
-  head: adminHead("إدارة التدريبات", "إنشاء وإدارة التدريبات والاختبارات."),
+  head: adminHead("إدارة التدريبات", "إنشاء وإدارة التدريبات والاختبارات والأسئلة."),
   loader: async () => {
     try {
       return await getQuizzesFn();
@@ -47,30 +48,9 @@ function AdminExercises() {
   const [description, setDescription] = useState("");
   const [grade, setGrade] = useState("");
   const [published, setPublished] = useState(false);
-
-  const saveMutation = useMutation({
-    mutationFn: saveQuizFn,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-quizzes"] });
-      toast.success("تم حفظ التدريب بنجاح");
-      setIsOpen(false);
-      resetForm();
-    },
-    onError: (err: Error) => {
-      toast.error(err.message || "حدث خطأ أثناء حفظ التدريب");
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteQuizFn,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-quizzes"] });
-      toast.success("تم حذف التدريب بنجاح");
-    },
-    onError: (err: Error) => {
-      toast.error(err.message || "حدث خطأ أثناء الحذف");
-    },
-  });
+  const [maxAttempts, setMaxAttempts] = useState(1);
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
 
   const resetForm = () => {
     setEditingQuiz(null);
@@ -78,22 +58,111 @@ function AdminExercises() {
     setDescription("");
     setGrade("");
     setPublished(false);
+    setMaxAttempts(1);
+    setQuestions([]);
   };
 
   const handleOpenEdit = (quiz: any) => {
     setEditingQuiz(quiz);
     setTitle(quiz.title || "");
-    setDescription(quiz.description || "");
+    setDescription(quiz.parsedDescription || "");
     setGrade(quiz.grade || "");
     setPublished(quiz.published ?? false);
+    setMaxAttempts(quiz.maxAttempts || 1);
+    setQuestions(quiz.questions || []);
     setIsOpen(true);
+  };
+
+  const handleAddMcqQuestion = () => {
+    setQuestions([
+      ...questions,
+      {
+        id: Math.random().toString(36).substring(2, 9),
+        text: "",
+        type: "mcq",
+        options: ["", "", "", ""],
+        correctAnswer: "",
+        points: 5,
+      },
+    ]);
+  };
+
+  const handleAddEssayQuestion = () => {
+    setQuestions([
+      ...questions,
+      {
+        id: Math.random().toString(36).substring(2, 9),
+        text: "",
+        type: "essay",
+        points: 5,
+      },
+    ]);
+  };
+
+  const handleRemoveQuestion = (id: string) => {
+    setQuestions(questions.filter((q) => q.id !== id));
+  };
+
+  const handleQuestionChange = (id: string, field: string, value: any) => {
+    setQuestions(questions.map((q) => (q.id === id ? { ...q, [field]: value } : q)));
+  };
+
+  const handleOptionChange = (qId: string, optIndex: number, val: string) => {
+    setQuestions(
+      questions.map((q) => {
+        if (q.id === qId) {
+          const newOpts = [...(q.options || ["", "", "", ""])];
+          newOpts[optIndex] = val;
+          return { ...q, options: newOpts };
+        }
+        return q;
+      }),
+    );
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      await saveQuizFn({
+        data: {
+          id: editingQuiz?.id,
+          title,
+          description,
+          grade,
+          published,
+          maxAttempts,
+          questions,
+        },
+      });
+      queryClient.invalidateQueries({ queryKey: ["admin-quizzes"] });
+      toast.success("تم حفظ التدريب والأسئلة بنجاح");
+      setIsOpen(false);
+      resetForm();
+    } catch (err: any) {
+      toast.error(err.message || "حدث خطأ أثناء حفظ التدريب");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm("هل أنت متأكد من حذف هذا التدريب؟")) {
+      try {
+        await deleteQuizFn({ data: { id } });
+        queryClient.invalidateQueries({ queryKey: ["admin-quizzes"] });
+        toast.success("تم حذف التدريب بنجاح");
+      } catch (err: any) {
+        toast.error(err.message || "حدث خطأ أثناء الحذف");
+      }
+    }
   };
 
   return (
     <>
       <PageHeader
         title="إدارة التدريبات"
-        desc="أنشئ الاختبارات والتدريبات لقياس مستوى الطلاب."
+        desc="أنشئ الاختبارات وأضف أسئلة الاختيار من متعدد والأسئلة المقالية وتحديد عدد المحاولات."
         action={
           <Button
             onClick={() => {
@@ -116,13 +185,16 @@ function AdminExercises() {
           <ClipboardList className="mx-auto size-12 text-muted-foreground" />
           <h2 className="mt-4 text-xl font-bold text-primary">لم تُضف أي تدريب بعد</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            أضف اختباراً جديداً لتقييم تحصيل الطلاب وتدريبهم على أسئلة الامتحانات.
+            أضف اختباراً جديداً مع الأسئلة وتحديد عدد المحاولات لتقييم تحصيل الطلاب.
           </p>
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {quizzes.map((qz: any) => (
-            <div key={qz.id} className="rounded-2xl border bg-card p-5 shadow-card flex flex-col justify-between">
+            <div
+              key={qz.id}
+              className="rounded-2xl border bg-card p-5 shadow-card flex flex-col justify-between"
+            >
               <div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
@@ -130,7 +202,9 @@ function AdminExercises() {
                   </span>
                   <span
                     className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                      qz.published ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"
+                      qz.published
+                        ? "bg-emerald-100 text-emerald-800"
+                        : "bg-amber-100 text-amber-800"
                     }`}
                   >
                     {qz.published ? "منشور" : "مسودة"}
@@ -138,8 +212,13 @@ function AdminExercises() {
                 </div>
                 <h3 className="mt-3 text-lg font-bold text-foreground">{qz.title}</h3>
                 <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                  {qz.description || "لا يوجد وصف مختصر."}
+                  {qz.parsedDescription || "لا يوجد وصف مختصر."}
                 </p>
+                <div className="mt-2 flex items-center gap-3 text-xs font-semibold text-primary">
+                  <span>الأسئلة: {qz.questions?.length || 0}</span>
+                  <span>|</span>
+                  <span>عدد المحاولات: {qz.maxAttempts || 1}</span>
+                </div>
               </div>
 
               <div className="mt-6 flex items-center justify-between border-t pt-4">
@@ -150,15 +229,7 @@ function AdminExercises() {
                   <Button size="sm" variant="outline" onClick={() => handleOpenEdit(qz)}>
                     <Edit className="size-4" />
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => {
-                      if (confirm("هل أنت متأكد من حذف هذا التدريب؟")) {
-                        deleteMutation.mutate({ id: qz.id });
-                      }
-                    }}
-                  >
+                  <Button size="sm" variant="destructive" onClick={() => handleDelete(qz.id)}>
                     <Trash2 className="size-4" />
                   </Button>
                 </div>
@@ -170,68 +241,175 @@ function AdminExercises() {
 
       {/* Add/Edit Quiz Dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="text-right" dir="rtl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto text-right" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-primary">
-              {editingQuiz ? "تعديل التدريب" : "إضافة تدريب جديد"}
+              {editingQuiz ? "تعديل التدريب والأسئلة" : "إضافة تدريب جديد مع الأسئلة"}
             </DialogTitle>
-            <DialogDescription>أدخل عنوان التدريب ووصفه للصف الدراسي.</DialogDescription>
+            <DialogDescription>
+              أدخل عنوان التدريب، عدد المحاولات، ثم أضف أسئلة الاختبار.
+            </DialogDescription>
           </DialogHeader>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              saveMutation.mutate({
-                id: editingQuiz?.id,
-                title,
-                description,
-                grade,
-                published,
-              });
-            }}
-            className="space-y-4 mt-2"
-          >
-            <div>
-              <Label>عنوان التدريب / الاختبار</Label>
-              <Input
-                required
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="مثال: اختبار الفصل الأول"
-              />
+          <form onSubmit={handleSave} className="space-y-6 mt-2">
+            <div className="space-y-4 rounded-xl border p-4 bg-secondary/20">
+              <h3 className="font-bold text-foreground">البيانات الأساسية وإعدادات الامتحان</h3>
+              <div>
+                <Label>عنوان التدريب / الاختبار</Label>
+                <Input
+                  required
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="مثال: اختبار الفصل الأول"
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>الصف الدراسي</Label>
+                  <Input
+                    value={grade}
+                    onChange={(e) => setGrade(e.target.value)}
+                    placeholder="مثال: الصف الثالث الثانوي"
+                  />
+                </div>
+                <div>
+                  <Label>عدد مرات محاولات الامتحان المسموحة</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={maxAttempts}
+                    onChange={(e) => setMaxAttempts(parseInt(e.target.value) || 1)}
+                    placeholder="مثال: 1 أو 2 أو 3"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label>تعليمات أو وصف التدريب</Label>
+                <Textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="أجب عن الأسئلة التالية بدقة..."
+                />
+              </div>
+              <div className="flex items-center justify-between rounded-xl border p-3 bg-card">
+                <Label htmlFor="pub-quiz" className="cursor-pointer font-medium">
+                  نشر التدريب للطلاب
+                </Label>
+                <Switch id="pub-quiz" checked={published} onCheckedChange={setPublished} />
+              </div>
             </div>
-            <div>
-              <Label>الصف الدراسي</Label>
-              <Input
-                value={grade}
-                onChange={(e) => setGrade(e.target.value)}
-                placeholder="مثال: الصف الثالث الثانوي"
-              />
+
+            {/* Questions Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b pb-2">
+                <h3 className="font-bold text-foreground flex items-center gap-2">
+                  <HelpCircle className="size-5 text-primary" /> أسئلة الاختبار ({questions.length})
+                </h3>
+                <div className="flex gap-2">
+                  <Button type="button" size="sm" onClick={handleAddMcqQuestion}>
+                    + اختيار من متعدد
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={handleAddEssayQuestion}
+                  >
+                    + سؤال مقالي
+                  </Button>
+                </div>
+              </div>
+
+              {questions.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-6 border border-dashed rounded-xl">
+                  لم تضف أي أسئلة بعد. استخدم أزرار الإضافة بالأعلى لإدراج الأسئلة.
+                </p>
+              ) : (
+                questions.map((q, idx) => (
+                  <div
+                    key={q.id}
+                    className="rounded-xl border p-4 bg-card shadow-sm space-y-3 relative"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold px-2 py-0.5 rounded bg-primary/10 text-primary">
+                        السؤال {idx + 1} ({q.type === "mcq" ? "اختيار من متعدد" : "سؤال مقالي"})
+                      </span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleRemoveQuestion(q.id)}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+
+                    <div>
+                      نص السؤال
+                      <Input
+                        required
+                        value={q.text}
+                        onChange={(e) => handleQuestionChange(q.id, "text", e.target.value)}
+                        placeholder="اكتب نص السؤال هنا..."
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        الدرجة المخصصة
+                        <Input
+                          type="number"
+                          min={1}
+                          value={q.points}
+                          onChange={(e) =>
+                            handleQuestionChange(q.id, "points", parseInt(e.target.value) || 1)
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    {q.type === "mcq" && (
+                      <div className="space-y-2 pt-2 border-t">
+                        <Label className="text-xs font-semibold">
+                          الخيارات (اختر الإجابة الصحيحة)
+                        </Label>
+                        {q.options.map((opt: string, optIdx: number) => (
+                          <div key={optIdx} className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name={`correct-${q.id}`}
+                              checked={q.correctAnswer === opt && opt !== ""}
+                              onChange={() => handleQuestionChange(q.id, "correctAnswer", opt)}
+                              className="accent-primary size-4"
+                              title="الإجابة الصحيحة"
+                            />
+                            <Input
+                              required
+                              value={opt}
+                              onChange={(e) => handleOptionChange(q.id, optIdx, e.target.value)}
+                              placeholder={`الخيار ${optIdx + 1}`}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {q.type === "essay" && (
+                      <p className="text-xs text-muted-foreground italic bg-secondary/40 p-2 rounded">
+                        * يتم إرسال إجابة الطالب المقالية إلى الإدارة لمراجعتها وتصحيحها يدوياً.
+                      </p>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
-            <div>
-              <Label>تعليمات أو وصف التدريب</Label>
-              <Textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="أجب عن الأسئلة التالية بدقة..."
-              />
-            </div>
-            <div className="flex items-center justify-between rounded-xl border p-3">
-              <Label htmlFor="pub-quiz" className="cursor-pointer font-medium">
-                نشر التدريب للطلاب
-              </Label>
-              <Switch
-                id="pub-quiz"
-                checked={published}
-                onCheckedChange={setPublished}
-              />
-            </div>
-            <div className="flex justify-end gap-2 pt-4">
+
+            <div className="flex justify-end gap-2 pt-4 border-t">
               <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
                 إلغاء
               </Button>
-              <Button type="submit" disabled={saveMutation.isPending}>
-                {saveMutation.isPending && <Loader2 className="ml-2 size-4 animate-spin" />}
-                حفظ التدريب
+              <Button type="submit" disabled={isSaving}>
+                {isSaving && <Loader2 className="ml-2 size-4 animate-spin" />}
+                حفظ التدريب بالأسئلة
               </Button>
             </div>
           </form>

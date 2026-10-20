@@ -28,14 +28,32 @@ function AdminHome() {
 
   const statCards = [
     { to: "/admin/students", label: "الطلاب المسجّلون", icon: Users, count: stats.studentsCount },
-    { to: "/admin/lectures", label: "المحاضرات المصوّرة", icon: PlayCircle, count: stats.lessonsCount },
-    { to: "/admin/exercises", label: "التدريبات والاختبارات", icon: ClipboardList, count: stats.quizzesCount },
-    { to: "/admin/results", label: "النتائج المسجّلة", icon: BarChart3, count: stats.attemptsCount },
+    {
+      to: "/admin/lectures",
+      label: "المحاضرات المصوّرة",
+      icon: PlayCircle,
+      count: stats.lessonsCount,
+    },
+    {
+      to: "/admin/exercises",
+      label: "التدريبات والاختبارات",
+      icon: ClipboardList,
+      count: stats.quizzesCount,
+    },
+    {
+      to: "/admin/results",
+      label: "النتائج المسجّلة",
+      icon: BarChart3,
+      count: stats.attemptsCount,
+    },
   ] as const;
 
   return (
     <>
-      <PageHeader title="مرحبًا أ. سعيد" desc="إدارة الطلاب والمحتوى التعليمي من مكان واحد بكفاءة." />
+      <PageHeader
+        title="مرحبًا أ. سعيد"
+        desc="إدارة الطلاب والمحتوى التعليمي من مكان واحد بكفاءة."
+      />
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {statCards.map((s) => (
           <Link
@@ -52,7 +70,8 @@ function AdminHome() {
       <div className="mt-8 rounded-2xl border bg-card p-6 shadow-card">
         <h2 className="text-lg font-bold text-primary">إحصاءات سريعة ونظام المنصة</h2>
         <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-          جميع وظائف الإدارة متصلة بقاعدة بيانات Supabase مباشرة. يمكنك إضافة الطلاب، رفع المحاضرات، إنشاء الاختبارات، ومتابعة درجات الطلاب بوضوح.
+          جميع وظائف الإدارة متصلة بقاعدة بيانات Supabase مباشرة. يمكنك إضافة الطلاب، رفع المحاضرات،
+          إنشاء الاختبارات، ومتابعة درجات الطلاب بوضوح.
         </p>
       </div>
     </>

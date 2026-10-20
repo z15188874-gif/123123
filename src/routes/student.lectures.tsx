@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute } from "@tanstack/react-router";
 import { PlayCircle, ExternalLink, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/AppShell";
@@ -53,7 +54,10 @@ function StudentLectures() {
       ) : (
         <div className="grid gap-6 md:grid-cols-2">
           {lessons.map((les: any) => (
-            <div key={les.id} className="rounded-2xl border bg-card p-6 shadow-card flex flex-col justify-between">
+            <div
+              key={les.id}
+              className="rounded-2xl border bg-card p-6 shadow-card flex flex-col justify-between"
+            >
               <div>
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
                   {les.grade || "عام"}
@@ -69,7 +73,10 @@ function StudentLectures() {
                   {new Date(les.created_at).toLocaleDateString("ar-EG")}
                 </span>
                 {les.video_url ? (
-                  <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  <Button
+                    asChild
+                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
                     <a href={les.video_url} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="ml-2 size-4" /> مشاهدة الدرس
                     </a>

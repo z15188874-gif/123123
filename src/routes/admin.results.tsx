@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute } from "@tanstack/react-router";
 import { BarChart3, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/AppShell";
@@ -58,14 +59,19 @@ function AdminResults() {
             </thead>
             <tbody className="divide-y text-sm">
               {results.map((res: any) => {
-                const percentage = res.total_points > 0 ? Math.round((res.score / res.total_points) * 100) : 0;
+                const percentage =
+                  res.total_points > 0 ? Math.round((res.score / res.total_points) * 100) : 0;
                 return (
                   <tr key={res.id} className="hover:bg-secondary/20 transition">
                     <td className="p-4 font-bold text-foreground">
                       {res.student?.full_name || "طالب محذوف"}
                     </td>
-                    <td className="p-4 text-muted-foreground">{res.student?.grade || "غير محدد"}</td>
-                    <td className="p-4 font-medium text-foreground">{res.quiz?.title || "اختبار"}</td>
+                    <td className="p-4 text-muted-foreground">
+                      {res.student?.grade || "غير محدد"}
+                    </td>
+                    <td className="p-4 font-medium text-foreground">
+                      {res.quiz?.title || "اختبار"}
+                    </td>
                     <td className="p-4">
                       <span className="inline-flex items-center gap-1.5 font-bold text-primary">
                         {res.score} / {res.total_points} ({percentage}%)

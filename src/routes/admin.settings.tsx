@@ -29,10 +29,12 @@ function AdminSettings() {
             المادة التعليمية: <span className="font-bold text-foreground">التاريخ والجغرافيا</span>
           </p>
           <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-            المسؤول والمحاضر: <span className="font-bold text-foreground">أ. سعيد سيد عبد الفتاح مطر</span>
+            المسؤول والمحاضر:{" "}
+            <span className="font-bold text-foreground">أ. سعيد سيد عبد الفتاح مطر</span>
           </p>
           <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-            قائد التطوير والبرمجة: <span className="font-bold text-foreground">م. زياد علي محمد خزيم (القائد)</span>
+            قائد التطوير والبرمجة:{" "}
+            <span className="font-bold text-foreground">م. زياد علي محمد خزيم (القائد)</span>
           </p>
         </div>
 
@@ -42,10 +44,12 @@ function AdminSettings() {
             <h2 className="text-xl font-bold">الأمان والصلاحيات</h2>
           </div>
           <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-            النظام محمي بالكامل عبر مصادقة Supabase وسلسلة إجراءات الأمان على الخادم (Server Functions & RLS).
+            النظام محمي بالكامل عبر مصادقة Supabase وسلسلة إجراءات الأمان على الخادم (Server
+            Functions & RLS).
           </p>
           <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-            الإدارة وحدها مخولة بإنشاء وحذف حسابات الطلاب لضمان أمان المنصة ووصول المحتوى للطلاب المصرح لهم فقط.
+            الإدارة وحدها مخولة بإنشاء وحذف حسابات الطلاب لضمان أمان المنصة ووصول المحتوى للطلاب
+            المصرح لهم فقط.
           </p>
         </div>
       </div>
