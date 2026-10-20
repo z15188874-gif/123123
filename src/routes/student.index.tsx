@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ClipboardList, PlayCircle } from "lucide-react";
 import { PageHeader } from "@/components/AppShell";
-import { DeveloperCard } from "@/components/DeveloperCard";
+import { ProfilesSection } from "@/components/DeveloperCard";
 
 export const Route = createFileRoute("/student/")({
   head: () => ({
@@ -53,9 +53,10 @@ function StudentHome() {
       </div>
 
       <div className="mt-8">
-        <DeveloperCard />
+        <ProfilesSection />
       </div>
     </>
   );
 }
+
 

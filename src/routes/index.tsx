@@ -4,7 +4,7 @@ import { KeyRound, Loader2, Mail, MessageCircle } from "lucide-react";
 import { getArabicAuthErrorMessage, setSessionCookies } from "@/lib/auth-client";
 import { loginServerFn } from "@/lib/auth-server";
 import { supabase } from "@/integrations/supabase/client";
-import { DeveloperCard } from "@/components/DeveloperCard";
+import { ProfilesSection } from "@/components/DeveloperCard";
 
 export function validateLoginEmail(input: string): { valid: boolean; error?: string } {
   const cleanEmail = input.trim();
@@ -253,7 +253,7 @@ function Login() {
           </p>
 
           <div className="mt-6">
-            <DeveloperCard />
+            <ProfilesSection />
           </div>
         </div>
       </section>
