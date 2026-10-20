@@ -54,7 +54,7 @@ function AdminStudents() {
   const [grade, setGrade] = useState("");
 
   const createMutation = useMutation({
-    mutationFn: createStudentFn,
+    mutationFn: (vars: any) => createStudentFn({ data: vars }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-students"] });
       toast.success("تم إنشاء حساب الطالب بنجاح");
@@ -67,7 +67,7 @@ function AdminStudents() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: updateStudentFn,
+    mutationFn: (vars: any) => updateStudentFn({ data: vars }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-students"] });
       toast.success("تم تحديث بيانات الطالب بنجاح");
@@ -80,7 +80,7 @@ function AdminStudents() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: deleteStudentFn,
+    mutationFn: (vars: any) => deleteStudentFn({ data: vars }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-students"] });
       toast.success("تم حذف حساب الطالب بنجاح");

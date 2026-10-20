@@ -44,7 +44,7 @@ function StudentQuizzes() {
   const [totalPoints, setTotalPoints] = useState(0);
 
   const submitMutation = useMutation({
-    mutationFn: submitQuizAttemptFn,
+    mutationFn: (vars: any) => submitQuizAttemptFn({ data: vars }),
     onSuccess: () => {
       toast.success("تم تسجيل إجابات الاختبار بنجاح");
       setSubmitted(true);

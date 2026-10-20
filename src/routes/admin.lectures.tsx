@@ -51,7 +51,7 @@ function AdminLectures() {
   const [published, setPublished] = useState(false);
 
   const saveMutation = useMutation({
-    mutationFn: saveLessonFn,
+    mutationFn: (vars: any) => saveLessonFn({ data: vars }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-lessons"] });
       toast.success("تم حفظ المحاضرة بنجاح");
@@ -64,7 +64,7 @@ function AdminLectures() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: deleteLessonFn,
+    mutationFn: (vars: any) => deleteLessonFn({ data: vars }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-lessons"] });
       toast.success("تم حذف المحاضرة بنجاح");
