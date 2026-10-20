@@ -134,21 +134,21 @@ function Login() {
   };
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      <section className="relative flex flex-col justify-between p-8 text-white sm:p-12 bg-slate-900 overflow-hidden lg:rounded-l-[3rem] lg:my-6 lg:mr-6 shadow-2xl">
+    <div className="grid min-h-screen lg:grid-cols-2 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <section className="relative flex flex-col justify-between p-8 text-white sm:p-12 bg-slate-900 overflow-hidden lg:rounded-l-[3rem] lg:my-6 lg:mr-6 shadow-2xl border border-gold/30">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-85 pointer-events-none"
+          className="absolute inset-0 bg-cover bg-center opacity-85 pointer-events-none mix-blend-normal scale-105 transition duration-700 hover:scale-100"
           style={{ backgroundImage: `url('/assets/aistudio/1792226093974_15388eac.jpg')` }}
         />
-        <div className="absolute inset-0 bg-black/25 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-900/50 to-slate-950/20 pointer-events-none" />
 
         <div className="relative z-10 flex items-center gap-3">
           <img
             src="/assets/aistudio/1792226093974_15388eac.jpg"
             alt="شعار المنصة"
-            className="size-11 rounded-full object-cover border-2 border-gold shadow-md"
+            className="size-12 rounded-full object-cover border-2 border-gold shadow-lg"
           />
-          <span className="text-sm tracking-wide text-gold font-medium drop-shadow">
+          <span className="text-sm tracking-wide text-gold font-semibold drop-shadow">
             منصة الأستاذ سعيد مطر
           </span>
         </div>
@@ -159,14 +159,14 @@ function Login() {
           <p className="mt-4 max-w-md text-lg leading-8 text-white/95 drop-shadow">
             رحلتك في أعماق التاريخ تبدأ هنا؛ محاضرات مصوّرة وتدريبات منظّمة تصنع فهمًا لا يُنسى.
           </p>
-          <div className="mt-8 border-r-2 border-gold pr-4">
-            <p className="text-xs text-white/80 font-medium drop-shadow">المحاضر</p>
-            <p className="font-display text-xl text-white drop-shadow">
+          <div className="mt-8 border-r-2 border-gold pr-4 bg-white/5 backdrop-blur-xs p-3 rounded-l-xl">
+            <p className="text-xs text-gold/90 font-medium drop-shadow">المحاضر</p>
+            <p className="font-display text-xl text-white drop-shadow mt-0.5">
               أ. سعيد سيد عبد الفتاح مطر
             </p>
           </div>
         </div>
-        <p className="relative z-10 text-sm font-display text-gold font-bold drop-shadow">
+        <p className="relative z-10 text-sm font-display text-gold font-bold drop-shadow bg-slate-900/80 backdrop-blur-sm p-3 rounded-xl border border-gold/30">
           تصميم وتطوير م. زياد علي محمد محمد خزيم (القائد)
         </p>
       </section>
@@ -285,11 +285,14 @@ function Field({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-sm font-medium">
+      <label
+        htmlFor={id}
+        className="mb-1.5 block text-sm font-bold text-amber-200 drop-shadow-sm tracking-wide"
+      >
         {label}
       </label>
       <div className="relative">
-        <Icon className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Icon className="absolute right-3.5 top-1/2 size-4 -translate-y-1/2 text-primary" />
         <input
           id={id}
           required
@@ -297,7 +300,7 @@ function Field({
           onChange={onChange}
           disabled={disabled}
           {...rest}
-          className="w-full rounded-lg border border-input bg-card py-3 pl-3 pr-10 text-sm outline-none transition focus:ring-2 focus:ring-ring disabled:opacity-50"
+          className="w-full rounded-xl border border-gold/40 bg-card/90 py-3.5 pl-4 pr-11 text-sm text-foreground outline-none transition duration-200 focus:border-gold focus:ring-2 focus:ring-gold/30 disabled:opacity-50 shadow-sm"
         />
       </div>
     </div>

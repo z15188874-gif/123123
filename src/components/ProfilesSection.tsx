@@ -35,7 +35,7 @@ export function DeveloperCard() {
 
   return (
     <>
-      <div className="rounded-2xl border bg-card/90 backdrop-blur-sm p-4 shadow-sm transition hover:border-primary/50 flex flex-col justify-between">
+      <div className="rounded-2xl border-2 border-gold/40 bg-gradient-to-br from-slate-900/95 via-card/95 to-slate-950/95 backdrop-blur-md p-4 shadow-xl transition-all duration-300 hover:border-gold hover:shadow-2xl flex flex-col justify-between">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -174,7 +174,7 @@ export function TeacherCard() {
 
   return (
     <>
-      <div className="rounded-2xl border bg-card/90 backdrop-blur-sm p-4 shadow-sm transition hover:border-primary/50 flex flex-col justify-between">
+      <div className="rounded-2xl border-2 border-gold/40 bg-gradient-to-br from-slate-900/95 via-card/95 to-slate-950/95 backdrop-blur-md p-4 shadow-xl transition-all duration-300 hover:border-gold hover:shadow-2xl flex flex-col justify-between">
         <div className="flex items-center gap-3">
           <button
             type="button"
