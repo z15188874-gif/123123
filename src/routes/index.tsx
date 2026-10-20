@@ -43,10 +43,11 @@ export const Route = createFileRoute("/")({
   component: Login,
 });
 
-// TODO: replace with the real WhatsApp number
 const WHATSAPP =
-  "https://wa.me/?text=" +
-  encodeURIComponent("السلام عليكم، أرغب في طلب حساب على منصة الأستاذ سعيد مطر");
+  "https://wa.me/201151302877?text=" +
+  encodeURIComponent(
+    "السلام عليكم ورحمة الله وبركاته،\nبسم الله الرحمن الرحيم،\nأسعد الله أوقاتكم بكل خير يا رب.\n\nأود طلب إنشاء حساب جديد على منصة الأستاذ سعيد مطر (منصة الإبحار التعليمية) لكي أتمكن من متابعة الدروس والمحاضرات والتدريبات.\n\nجزاكم الله خيراً وجعله في ميزان حسناتكم، وفي انتظار تفعيل حسابي بارك الله فيكم.",
+  );
 
 function Login() {
   const router = useRouter();
