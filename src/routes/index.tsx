@@ -172,9 +172,11 @@ function Login() {
       </section>
 
       <section className="flex items-center justify-center p-6 sm:p-12">
-        <div className="w-full max-w-sm">
-          <h2 className="text-2xl font-bold text-primary">تسجيل الدخول</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+        <div className="w-full max-w-sm space-y-1.5">
+          <h2 className="text-3xl font-extrabold text-amber-200 drop-shadow-sm tracking-tight">
+            تسجيل الدخول
+          </h2>
+          <p className="text-sm font-medium text-slate-200">
             أدخل بيانات الحساب التي حصلت عليها من إدارة المنصة.
           </p>
 

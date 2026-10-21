@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ClipboardList, PlayCircle } from "lucide-react";
+import { ClipboardList, Megaphone, PlayCircle } from "lucide-react";
 import { PageHeader } from "@/components/AppShell";
 import { ProfilesSection } from "@/components/DeveloperCard";
 
@@ -29,11 +29,17 @@ function StudentHome() {
       title: "التدريبات والاختبارات",
       text: "اختبر فهمك بأسئلة متنوعة وتابع نتائجك.",
     },
+    {
+      to: "/student/posts",
+      icon: Megaphone,
+      title: "منشورات المنصة والاستطلاعات",
+      text: "تابع أحدث الإعلانات، شارك في استطلاعات الرأي، وقيم المنصة.",
+    },
   ] as const;
   return (
     <>
       <PageHeader title="أهلًا بك في رحلة الإبحار" desc="اختر القسم الذي تريد البدء به." />
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {cards.map((c) => (
           <Link
             key={c.to}

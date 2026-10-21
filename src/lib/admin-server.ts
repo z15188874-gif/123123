@@ -310,13 +310,48 @@ export const getResultsFn = createServerFn({ method: "GET" })
         `
         *,
         student:profiles(id, full_name, grade),
-        quiz:quizzes(id, title)
+        quiz:quizzes(id, title, description)
       `,
       )
       .order("submitted_at", { ascending: false });
 
     if (error) throw new Error(error.message);
-    return data || [];
+    return (data || []).map((att: any) => {
+      const parsedQuiz = parseQuizDescription(att.quiz?.description);
+      return {
+        ...att,
+        quizQuestions: parsedQuiz.questions,
+      };
+    });
+  });
+
+export const updateQuizAttemptScoreFn = createServerFn({ method: "POST" })
+  .middleware([requireAdminAuth])
+  .validator((input: { attemptId: string; newScore: number; feedback?: string; graded?: boolean }) => {
+    if (!input.attemptId) throw new Error("معرّف المحاولة مطلوب");
+    return input;
+  })
+  .handler(async ({ data }) => {
+    const supabase = getAdminSupabase();
+    const updatePayload: any = {
+      score: data.newScore,
+      graded: true,
+    };
+    if (data.feedback !== undefined) updatePayload.feedback = data.feedback;
+
+    const { error } = await supabase
+      .from("quiz_attempts")
+      .update(updatePayload)
+      .eq("id", data.attemptId);
+
+    if (error) {
+      const { error: err2 } = await supabase
+        .from("quiz_attempts")
+        .update({ score: data.newScore })
+        .eq("id", data.attemptId);
+      if (err2) throw new Error(err2.message);
+    }
+    return { success: true };
   });
 
 export const getStudentContentFn = createServerFn({ method: "GET" })
@@ -389,7 +424,7 @@ export const getStudentContentFn = createServerFn({ method: "GET" })
 
 export const submitQuizAttemptFn = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
-  .validator((input: { quizId: string; score: number; totalPoints: number }) => {
+  .validator((input: { quizId: string; score: number; totalPoints: number; answers?: Record<string, string> }) => {
     if (!input.quizId) throw new Error("معرّف التدريب مطلوب");
     return input;
   })
@@ -397,13 +432,214 @@ export const submitQuizAttemptFn = createServerFn({ method: "POST" })
     const supabase = getAdminSupabase();
     const user = context.user;
 
-    const { error } = await supabase.from("quiz_attempts").insert({
+    const insertData: any = {
       quiz_id: data.quizId,
       student_id: user.id,
       score: data.score,
       total_points: data.totalPoints,
+      graded: false,
+    };
+
+    if (data.answers) {
+      insertData.answers = data.answers;
+    }
+
+    const { error } = await supabase.from("quiz_attempts").insert(insertData);
+
+    if (error) {
+      const { error: err2 } = await supabase.from("quiz_attempts").insert({
+        quiz_id: data.quizId,
+        student_id: user.id,
+        score: data.score,
+        total_points: data.totalPoints,
+      });
+      if (err2) throw new Error(err2.message);
+    }
+    return { success: true };
+  });
+
+export const getPlatformPostsFn = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const supabase = getAdminSupabase();
+    const { data, error } = await supabase
+      .from("quizzes")
+      .select("*")
+      .in("grade", ["announcement", "poll", "rating"])
+      .order("created_at", { ascending: false });
+
+    if (error) return [];
+    return (data || []).map((item: any) => {
+      let parsed: any = {};
+      try {
+        parsed = JSON.parse(item.description || "{}");
+      } catch {
+        parsed = { content: item.description };
+      }
+      return {
+        id: item.id,
+        title: item.title,
+        type: item.grade,
+        published: item.published,
+        created_at: item.created_at,
+        ...parsed,
+      };
+    });
+  });
+
+export const savePlatformPostFn = createServerFn({ method: "POST" })
+  .middleware([requireAdminAuth])
+  .validator((input: { id?: string; title: string; type: string; content?: string; options?: string[]; published?: boolean }) => {
+    if (!input.title || !input.type) throw new Error("العنوان ونوع المنشور مطلوبان");
+    return input;
+  })
+  .handler(async ({ data }) => {
+    const supabase = getAdminSupabase();
+
+    let postPayload: any = {
+      content: data.content || "",
+    };
+    if (data.type === "poll") {
+      postPayload.options = data.options || [];
+      postPayload.votes = {};
+    } else if (data.type === "rating") {
+      postPayload.ratings = [];
+    }
+
+    const dbPayload = {
+      title: data.title.trim(),
+      grade: data.type,
+      description: JSON.stringify(postPayload),
+      published: data.published ?? true,
+    };
+
+    if (data.id) {
+      const { data: existing } = await supabase.from("quizzes").select("description").eq("id", data.id).single();
+      if (existing?.description) {
+        try {
+          const oldParsed = JSON.parse(existing.description);
+          if (data.type === "poll" && oldParsed.votes) postPayload.votes = oldParsed.votes;
+          if (data.type === "rating" && oldParsed.ratings) postPayload.ratings = oldParsed.ratings;
+          dbPayload.description = JSON.stringify(postPayload);
+        } catch {}
+      }
+
+      const { error } = await supabase.from("quizzes").update(dbPayload).eq("id", data.id);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await supabase.from("quizzes").insert(dbPayload);
+      if (error) throw new Error(error.message);
+    }
+
+    return { success: true };
+  });
+
+export const deletePlatformPostFn = createServerFn({ method: "POST" })
+  .middleware([requireAdminAuth])
+  .validator((input: { id: string }) => {
+    if (!input.id) throw new Error("معرّف المنشور مطلوب");
+    return input;
+  })
+  .handler(async ({ data }) => {
+    const supabase = getAdminSupabase();
+    const { error } = await supabase.from("quizzes").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+export const votePollFn = createServerFn({ method: "POST" })
+  .middleware([requireStudentAuth])
+  .validator((input: { postId: string; option: string }) => {
+    if (!input.postId || !input.option) throw new Error("البيانات غير مكتملة للتصويت");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    const supabase = getAdminSupabase();
+    const userId = context.user.id;
+
+    const { data: post, error: fetchErr } = await supabase
+      .from("quizzes")
+      .select("*")
+      .eq("id", data.postId)
+      .single();
+
+    if (fetchErr || !post) throw new Error("الاستطلاع غير موجود");
+
+    let parsed: any = {};
+    try {
+      parsed = JSON.parse(post.description || "{}");
+    } catch {
+      throw new Error("بيانات الاستطلاع غير صالحة");
+    }
+
+    if (!parsed.votes) parsed.votes = {};
+
+    Object.keys(parsed.votes).forEach((opt) => {
+      if (Array.isArray(parsed.votes[opt])) {
+        parsed.votes[opt] = parsed.votes[opt].filter((id: string) => id !== userId);
+      }
     });
 
-    if (error) throw new Error(error.message);
+    if (!parsed.votes[data.option]) parsed.votes[data.option] = [];
+    parsed.votes[data.option].push(userId);
+
+    const { error: updateErr } = await supabase
+      .from("quizzes")
+      .update({ description: JSON.stringify(parsed) })
+      .eq("id", data.postId);
+
+    if (updateErr) throw new Error(updateErr.message);
+    return { success: true };
+  });
+
+export const submitPlatformRatingFn = createServerFn({ method: "POST" })
+  .middleware([requireStudentAuth])
+  .validator((input: { postId: string; stars: number; comment?: string }) => {
+    if (!input.postId || !input.stars) throw new Error("التقييم مطلوب");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    const supabase = getAdminSupabase();
+    const userId = context.user.id;
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", userId)
+      .single();
+
+    const studentName = profile?.full_name || "طالب";
+
+    const { data: post, error: fetchErr } = await supabase
+      .from("quizzes")
+      .select("*")
+      .eq("id", data.postId)
+      .single();
+
+    if (fetchErr || !post) throw new Error("عنصر التقييم غير موجود");
+
+    let parsed: any = {};
+    try {
+      parsed = JSON.parse(post.description || "{}");
+    } catch {
+      parsed = { ratings: [] };
+    }
+
+    if (!parsed.ratings) parsed.ratings = [];
+
+    parsed.ratings = parsed.ratings.filter((r: any) => r.studentId !== userId);
+    parsed.ratings.push({
+      studentId: userId,
+      studentName,
+      stars: data.stars,
+      comment: data.comment || "",
+      date: new Date().toISOString(),
+    });
+
+    const { error: updateErr } = await supabase
+      .from("quizzes")
+      .update({ description: JSON.stringify(parsed) })
+      .eq("id", data.postId);
+
+    if (updateErr) throw new Error(updateErr.message);
     return { success: true };
   });

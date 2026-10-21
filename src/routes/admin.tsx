@@ -3,6 +3,7 @@ import {
   BarChart3,
   ClipboardList,
   LayoutDashboard,
+  Megaphone,
   PlayCircle,
   Settings,
   Users,
@@ -38,6 +39,7 @@ export const Route = createFileRoute("/admin")({
         { to: "/admin/lectures", label: "المحاضرات", icon: PlayCircle },
         { to: "/admin/exercises", label: "التدريبات", icon: ClipboardList },
         { to: "/admin/results", label: "نتائج الطلاب", icon: BarChart3 },
+        { to: "/admin/posts", label: "منشورات المنصة", icon: Megaphone },
         { to: "/admin/settings", label: "إعدادات المنصة", icon: Settings },
       ]}
     />

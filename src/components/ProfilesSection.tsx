@@ -35,12 +35,12 @@ export function DeveloperCard() {
 
   return (
     <>
-      <div className="rounded-2xl border-2 border-gold/40 bg-gradient-to-br from-slate-900/95 via-card/95 to-slate-950/95 backdrop-blur-md p-4 shadow-xl transition-all duration-300 hover:border-gold hover:shadow-2xl flex flex-col justify-between">
-        <div className="flex items-center gap-3">
+      <div className="rounded-2xl border-2 border-gold/40 bg-gradient-to-br from-slate-900/95 via-slate-900/90 to-slate-950/95 backdrop-blur-md p-3 sm:p-4 shadow-xl transition-all duration-300 hover:border-gold hover:shadow-2xl flex flex-col justify-between">
+        <div className="flex items-center gap-2.5 sm:gap-3">
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className="relative size-12 shrink-0 overflow-hidden rounded-full border-2 border-gold/60 bg-card transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gold cursor-pointer group"
+            className="relative size-10 sm:size-12 shrink-0 overflow-hidden rounded-full border-2 border-gold/60 bg-slate-900 transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gold cursor-pointer group"
             title={profileLabel}
           >
             <img
@@ -53,36 +53,36 @@ export function DeveloperCard() {
             />
           </button>
 
-          <div className="flex-1 min-w-0 bg-gradient-navy p-3 rounded-xl shadow-sm text-navy-foreground">
+          <div className="flex-1 min-w-0 bg-gradient-to-r from-slate-900/90 via-slate-800/90 to-slate-900/90 border border-gold/30 p-2.5 sm:p-3 rounded-xl shadow-sm text-slate-100">
             <button
               type="button"
               onClick={() => setIsOpen(true)}
-              className="text-xs font-semibold text-gold hover:underline block text-right cursor-pointer"
+              className="text-[11px] sm:text-xs font-semibold text-gold hover:underline block text-right cursor-pointer"
             >
               {profileLabel}
             </button>
             <button
               type="button"
               onClick={() => setIsOpen(true)}
-              className="font-display text-sm font-bold text-gold truncate block text-right hover:opacity-90 transition cursor-pointer w-full mt-0.5"
+              className="font-display text-xs sm:text-sm font-bold text-gold truncate block text-right hover:opacity-90 transition cursor-pointer w-full mt-0.5"
             >
               {developerName}
             </button>
           </div>
         </div>
 
-        <p className="mt-3 text-xs leading-5 text-muted-foreground text-right border-t pt-2 border-border/65">
+        <p className="mt-2.5 text-[11px] sm:text-xs leading-4 sm:leading-5 text-slate-300 text-right border-t pt-2 border-gold/20">
           {developmentText}
         </p>
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-md text-right" dir="rtl">
+        <DialogContent className="sm:max-w-md text-right bg-slate-950 border border-gold/40 text-slate-100" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-primary text-right">
+            <DialogTitle className="text-xl font-bold text-gold text-right">
               {profileLabel}
             </DialogTitle>
-            <DialogDescription className="text-muted-foreground text-right">
+            <DialogDescription className="text-slate-300 text-right">
               {profession}
             </DialogDescription>
           </DialogHeader>
@@ -90,7 +90,7 @@ export function DeveloperCard() {
           <div className="flex flex-col items-center text-center my-4">
             <div
               onClick={() => setIsZoomedOpen(true)}
-              className="relative size-32 overflow-hidden rounded-full border-4 border-primary/30 shadow-xl bg-primary/10 mb-4 cursor-pointer group transition hover:scale-105"
+              className="relative size-32 overflow-hidden rounded-full border-4 border-gold/40 shadow-xl bg-slate-900 mb-4 cursor-pointer group transition hover:scale-105"
               title="اضغط لتكبير الصورة"
             >
               <img
@@ -101,18 +101,18 @@ export function DeveloperCard() {
                   (e.currentTarget as HTMLElement).style.display = "none";
                 }}
               />
-              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
                 <ZoomIn className="size-8" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mb-2">
+            <p className="text-xs text-slate-300 mb-2">
               اضغط على الصورة لتكبيرها وعرضها بحجم كامل
             </p>
 
-            <h3 className="text-lg font-bold text-foreground">{developerName}</h3>
-            <p className="text-xs text-primary font-medium mt-1">{profession}</p>
+            <h3 className="text-lg font-bold text-slate-100">{developerName}</h3>
+            <p className="text-xs text-gold font-medium mt-1">{profession}</p>
 
-            <p className="mt-4 text-sm leading-relaxed text-muted-foreground bg-secondary/50 p-4 rounded-xl border border-border/60">
+            <p className="mt-4 text-sm leading-relaxed text-slate-200 bg-slate-900/90 p-4 rounded-xl border border-gold/30 text-right">
               {bioText}
             </p>
           </div>
@@ -131,7 +131,7 @@ export function DeveloperCard() {
                 تواصل عبر واتساب ({displayWhatsapp})
               </a>
             </Button>
-            <Button variant="outline" onClick={() => setIsOpen(false)} className="w-full sm:w-auto">
+            <Button variant="outline" onClick={() => setIsOpen(false)} className="w-full sm:w-auto border-gold/40 text-slate-200 hover:bg-slate-900">
               إغلاق
             </Button>
           </div>
@@ -174,12 +174,12 @@ export function TeacherCard() {
 
   return (
     <>
-      <div className="rounded-2xl border-2 border-gold/40 bg-gradient-to-br from-slate-900/95 via-card/95 to-slate-950/95 backdrop-blur-md p-4 shadow-xl transition-all duration-300 hover:border-gold hover:shadow-2xl flex flex-col justify-between">
-        <div className="flex items-center gap-3">
+      <div className="rounded-2xl border-2 border-gold/40 bg-gradient-to-br from-slate-900/95 via-slate-900/90 to-slate-950/95 backdrop-blur-md p-3 sm:p-4 shadow-xl transition-all duration-300 hover:border-gold hover:shadow-2xl flex flex-col justify-between">
+        <div className="flex items-center gap-2.5 sm:gap-3">
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className="relative size-12 shrink-0 overflow-hidden rounded-full border-2 border-gold/60 bg-card transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gold cursor-pointer group"
+            className="relative size-10 sm:size-12 shrink-0 overflow-hidden rounded-full border-2 border-gold/60 bg-slate-900 transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gold cursor-pointer group"
             title={profileLabel}
           >
             <img
@@ -192,36 +192,36 @@ export function TeacherCard() {
             />
           </button>
 
-          <div className="flex-1 min-w-0 bg-gradient-navy p-3 rounded-xl shadow-sm text-navy-foreground">
+          <div className="flex-1 min-w-0 bg-gradient-to-r from-slate-900/90 via-slate-800/90 to-slate-900/90 border border-gold/30 p-2.5 sm:p-3 rounded-xl shadow-sm text-slate-100">
             <button
               type="button"
               onClick={() => setIsOpen(true)}
-              className="text-xs font-semibold text-gold hover:underline block text-right cursor-pointer"
+              className="text-[11px] sm:text-xs font-semibold text-gold hover:underline block text-right cursor-pointer"
             >
               {profileLabel}
             </button>
             <button
               type="button"
               onClick={() => setIsOpen(true)}
-              className="font-display text-sm font-bold text-gold truncate block text-right hover:opacity-90 transition cursor-pointer w-full mt-0.5"
+              className="font-display text-xs sm:text-sm font-bold text-gold truncate block text-right hover:opacity-90 transition cursor-pointer w-full mt-0.5"
             >
               {teacherName}
             </button>
           </div>
         </div>
 
-        <p className="mt-3 text-xs leading-5 text-muted-foreground text-right border-t pt-2 border-border/65">
+        <p className="mt-2.5 text-[11px] sm:text-xs leading-4 sm:leading-5 text-slate-300 text-right border-t pt-2 border-gold/20">
           {introText}
         </p>
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-md text-right" dir="rtl">
+        <DialogContent className="sm:max-w-md text-right bg-slate-950 border border-gold/40 text-slate-100" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-primary text-right">
+            <DialogTitle className="text-xl font-bold text-gold text-right">
               {profileLabel}
             </DialogTitle>
-            <DialogDescription className="text-muted-foreground text-right">
+            <DialogDescription className="text-slate-300 text-right">
               {profession}
             </DialogDescription>
           </DialogHeader>
@@ -229,7 +229,7 @@ export function TeacherCard() {
           <div className="flex flex-col items-center text-center my-4">
             <div
               onClick={() => setIsZoomedOpen(true)}
-              className="relative size-32 overflow-hidden rounded-full border-4 border-primary/30 shadow-xl bg-primary/10 mb-4 cursor-pointer group transition hover:scale-105"
+              className="relative size-32 overflow-hidden rounded-full border-4 border-gold/40 shadow-xl bg-slate-900 mb-4 cursor-pointer group transition hover:scale-105"
               title="اضغط لتكبير الصورة"
             >
               <img
@@ -240,24 +240,24 @@ export function TeacherCard() {
                   (e.currentTarget as HTMLElement).style.display = "none";
                 }}
               />
-              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
                 <ZoomIn className="size-8" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mb-2">
+            <p className="text-xs text-slate-300 mb-2">
               اضغط على الصورة لتكبيرها وعرضها بحجم كامل
             </p>
 
-            <h3 className="text-lg font-bold text-foreground">{teacherName}</h3>
-            <p className="text-xs text-primary font-medium mt-1">{profession}</p>
+            <h3 className="text-lg font-bold text-slate-100">{teacherName}</h3>
+            <p className="text-xs text-gold font-medium mt-1">{profession}</p>
 
-            <p className="mt-4 text-sm leading-relaxed text-muted-foreground bg-secondary/50 p-4 rounded-xl border border-border/60">
+            <p className="mt-4 text-sm leading-relaxed text-slate-200 bg-slate-900/90 p-4 rounded-xl border border-gold/30 text-right">
               {bioText}
             </p>
           </div>
 
           <div className="flex justify-end mt-2">
-            <Button variant="outline" onClick={() => setIsOpen(false)} className="w-full sm:w-auto">
+            <Button variant="outline" onClick={() => setIsOpen(false)} className="w-full sm:w-auto border-gold/40 text-slate-200 hover:bg-slate-900">
               إغلاق
             </Button>
           </div>

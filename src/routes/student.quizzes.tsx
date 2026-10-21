@@ -98,6 +98,7 @@ function StudentQuizzes() {
       quizId: activeQuiz.id,
       score: calculatedScore,
       totalPoints: maxPoints > 0 ? maxPoints : 10,
+      answers,
     });
   };
 
@@ -148,9 +149,9 @@ function StudentQuizzes() {
                   {finalScore} / {totalPoints}
                 </span>
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                * تم إرسال الإجابات المقالية إلى الإدارة للمراجعة والتقييم النهائي.
-              </p>
+              <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-900 text-xs leading-relaxed text-right">
+                <strong>ملاحظة هامة:</strong> تم إرسال إجاباتك المقالية إلى المعلم للمراجعة، **ولا تُعتبر النتيجة النهائية نهائية أو تُرسل لك درجات الأسئلة المقالية إلا بعد تصحيحها ومراجعتها واعتمادها من قبل المدير/المعلم**.
+              </div>
               <Button onClick={() => setActiveQuiz(null)} className="mt-6">
                 الانتقال للتدريبات الأخرى
               </Button>
