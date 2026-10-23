@@ -77,7 +77,10 @@ export function DeveloperCard() {
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-md text-right bg-slate-950 border border-gold/40 text-slate-100" dir="rtl">
+        <DialogContent
+          className="sm:max-w-md text-right bg-slate-950 border border-gold/40 text-slate-100"
+          dir="rtl"
+        >
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-gold text-right">
               {profileLabel}
@@ -105,9 +108,7 @@ export function DeveloperCard() {
                 <ZoomIn className="size-8" />
               </div>
             </div>
-            <p className="text-xs text-slate-300 mb-2">
-              اضغط على الصورة لتكبيرها وعرضها بحجم كامل
-            </p>
+            <p className="text-xs text-slate-300 mb-2">اضغط على الصورة لتكبيرها وعرضها بحجم كامل</p>
 
             <h3 className="text-lg font-bold text-slate-100">{developerName}</h3>
             <p className="text-xs text-gold font-medium mt-1">{profession}</p>
@@ -131,7 +132,11 @@ export function DeveloperCard() {
                 تواصل عبر واتساب ({displayWhatsapp})
               </a>
             </Button>
-            <Button variant="outline" onClick={() => setIsOpen(false)} className="w-full sm:w-auto border-gold/40 text-slate-200 hover:bg-slate-900">
+            <Button
+              variant="outline"
+              onClick={() => setIsOpen(false)}
+              className="w-full sm:w-auto border-gold/40 text-slate-200 hover:bg-slate-900"
+            >
               إغلاق
             </Button>
           </div>
@@ -216,7 +221,10 @@ export function TeacherCard() {
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-md text-right bg-slate-950 border border-gold/40 text-slate-100" dir="rtl">
+        <DialogContent
+          className="sm:max-w-md text-right bg-slate-950 border border-gold/40 text-slate-100"
+          dir="rtl"
+        >
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-gold text-right">
               {profileLabel}
@@ -244,9 +252,7 @@ export function TeacherCard() {
                 <ZoomIn className="size-8" />
               </div>
             </div>
-            <p className="text-xs text-slate-300 mb-2">
-              اضغط على الصورة لتكبيرها وعرضها بحجم كامل
-            </p>
+            <p className="text-xs text-slate-300 mb-2">اضغط على الصورة لتكبيرها وعرضها بحجم كامل</p>
 
             <h3 className="text-lg font-bold text-slate-100">{teacherName}</h3>
             <p className="text-xs text-gold font-medium mt-1">{profession}</p>
@@ -257,7 +263,11 @@ export function TeacherCard() {
           </div>
 
           <div className="flex justify-end mt-2">
-            <Button variant="outline" onClick={() => setIsOpen(false)} className="w-full sm:w-auto border-gold/40 text-slate-200 hover:bg-slate-900">
+            <Button
+              variant="outline"
+              onClick={() => setIsOpen(false)}
+              className="w-full sm:w-auto border-gold/40 text-slate-200 hover:bg-slate-900"
+            >
               إغلاق
             </Button>
           </div>

@@ -49,6 +49,9 @@ function AdminExercises() {
   const [grade, setGrade] = useState("");
   const [published, setPublished] = useState(false);
   const [maxAttempts, setMaxAttempts] = useState(1);
+  const [durationMinutes, setDurationMinutes] = useState(0);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [questions, setQuestions] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -59,6 +62,9 @@ function AdminExercises() {
     setGrade("");
     setPublished(false);
     setMaxAttempts(1);
+    setDurationMinutes(0);
+    setStartDate("");
+    setEndDate("");
     setQuestions([]);
   };
 
@@ -69,6 +75,9 @@ function AdminExercises() {
     setGrade(quiz.grade || "");
     setPublished(quiz.published ?? false);
     setMaxAttempts(quiz.maxAttempts || 1);
+    setDurationMinutes(quiz.durationMinutes || 0);
+    setStartDate(quiz.startDate || "");
+    setEndDate(quiz.endDate || "");
     setQuestions(quiz.questions || []);
     setIsOpen(true);
   };
@@ -132,6 +141,9 @@ function AdminExercises() {
           grade,
           published,
           maxAttempts,
+          durationMinutes,
+          startDate,
+          endDate,
           questions,
         },
       });
@@ -214,10 +226,16 @@ function AdminExercises() {
                 <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
                   {qz.parsedDescription || "لا يوجد وصف مختصر."}
                 </p>
-                <div className="mt-2 flex items-center gap-3 text-xs font-semibold text-primary">
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-primary">
                   <span>الأسئلة: {qz.questions?.length || 0}</span>
                   <span>|</span>
-                  <span>عدد المحاولات: {qz.maxAttempts || 1}</span>
+                  <span>المحاولات: {qz.maxAttempts || 1}</span>
+                  {qz.durationMinutes > 0 && (
+                    <>
+                      <span>|</span>
+                      <span>المدة: {qz.durationMinutes} دقيقة</span>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -247,7 +265,7 @@ function AdminExercises() {
               {editingQuiz ? "تعديل التدريب والأسئلة" : "إضافة تدريب جديد مع الأسئلة"}
             </DialogTitle>
             <DialogDescription>
-              أدخل عنوان التدريب، عدد المحاولات، ثم أضف أسئلة الاختبار.
+              أدخل عنوان التدريب، إعدادات الوقت والمدة، ثم أضف أسئلة الاختبار.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-6 mt-2">
@@ -282,6 +300,36 @@ function AdminExercises() {
                   />
                 </div>
               </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label>مدة الامتحان (بالدقائق)</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={durationMinutes}
+                    onChange={(e) => setDurationMinutes(parseInt(e.target.value) || 0)}
+                    placeholder="0 = بدون حد زمني"
+                  />
+                </div>
+                <div>
+                  <Label>تاريخ ووقت بدء الاختبار</Label>
+                  <Input
+                    type="datetime-local"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label>تاريخ ووقت انتهاء الاختبار</Label>
+                  <Input
+                    type="datetime-local"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                </div>
+              </div>
+
               <div>
                 <Label>تعليمات أو وصف التدريب</Label>
                 <Textarea

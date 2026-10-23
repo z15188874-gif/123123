@@ -13,7 +13,10 @@ export const Route = createFileRoute("/student/posts")({
   head: () => ({
     meta: [
       { title: "منشورات المنصة والاستطلاعات | منصة الإبحار" },
-      { name: "description", content: "تابع الإعلانات الرسمية وشارك في استطلاعات الرأي وتقييم المنصة." },
+      {
+        name: "description",
+        content: "تابع الإعلانات الرسمية وشارك في استطلاعات الرأي وتقييم المنصة.",
+      },
       { property: "og:title", content: "منشورات المنصة والاستطلاعات | منصة الإبحار" },
       { property: "og:description", content: "منشورات واستطلاعات الرأي وتقييمات الطلاب." },
     ],
@@ -97,7 +100,10 @@ function StudentPosts() {
           {posts.map((p: any) => {
             if (p.type === "announcement") {
               return (
-                <div key={p.id} className="rounded-2xl border bg-card p-6 md:p-8 shadow-card space-y-3">
+                <div
+                  key={p.id}
+                  className="rounded-2xl border bg-card p-6 md:p-8 shadow-card space-y-3"
+                >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold px-3 py-1 rounded-full bg-primary/10 text-primary">
                       إعلان المنصة
@@ -118,11 +124,17 @@ function StudentPosts() {
 
             if (p.type === "poll") {
               const totalVotes = p.votes
-                ? Object.values(p.votes).reduce((acc: number, v: any) => acc + (Array.isArray(v) ? v.length : 0), 0)
+                ? Object.values(p.votes).reduce(
+                    (acc: number, v: any) => acc + (Array.isArray(v) ? v.length : 0),
+                    0,
+                  )
                 : 0;
 
               return (
-                <div key={p.id} className="rounded-2xl border bg-card p-6 md:p-8 shadow-card space-y-4">
+                <div
+                  key={p.id}
+                  className="rounded-2xl border bg-card p-6 md:p-8 shadow-card space-y-4"
+                >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold px-3 py-1 rounded-full bg-accent/10 text-accent-foreground">
                       استطلاع رأي تفاعلي
@@ -140,7 +152,10 @@ function StudentPosts() {
                       const pct = totalVotes > 0 ? Math.round((optVotes / totalVotes) * 100) : 0;
 
                       return (
-                        <div key={idx} className="bg-secondary/40 border p-3.5 rounded-xl space-y-2">
+                        <div
+                          key={idx}
+                          className="bg-secondary/40 border p-3.5 rounded-xl space-y-2"
+                        >
                           <div className="flex items-center justify-between">
                             <span className="font-semibold text-sm text-foreground">{opt}</span>
                             <Button
@@ -154,9 +169,14 @@ function StudentPosts() {
                           </div>
                           <div className="flex items-center gap-3">
                             <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
-                              <div className="bg-primary h-full transition-all" style={{ width: `${pct}%` }} />
+                              <div
+                                className="bg-primary h-full transition-all"
+                                style={{ width: `${pct}%` }}
+                              />
                             </div>
-                            <span className="text-xs font-bold text-primary min-w-[45px] text-left">{pct}%</span>
+                            <span className="text-xs font-bold text-primary min-w-[45px] text-left">
+                              {pct}%
+                            </span>
                           </div>
                         </div>
                       );
@@ -170,17 +190,24 @@ function StudentPosts() {
               const ratingsList = p.ratings || [];
               const avgRating =
                 ratingsList.length > 0
-                  ? (ratingsList.reduce((acc: number, r: any) => acc + (r.stars || 0), 0) / ratingsList.length).toFixed(1)
+                  ? (
+                      ratingsList.reduce((acc: number, r: any) => acc + (r.stars || 0), 0) /
+                      ratingsList.length
+                    ).toFixed(1)
                   : "0.0";
 
               return (
-                <div key={p.id} className="rounded-2xl border bg-card p-6 md:p-8 shadow-card space-y-4">
+                <div
+                  key={p.id}
+                  className="rounded-2xl border bg-card p-6 md:p-8 shadow-card space-y-4"
+                >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold px-3 py-1 rounded-full bg-amber-100 text-amber-800">
                       تقييم المنصة
                     </span>
                     <div className="flex items-center gap-1.5 text-amber-500 font-bold text-sm">
-                      <Star className="size-4 fill-amber-400" /> {avgRating} ({ratingsList.length} تقييم)
+                      <Star className="size-4 fill-amber-400" /> {avgRating} ({ratingsList.length}{" "}
+                      تقييم)
                     </div>
                   </div>
                   <h2 className="text-xl font-bold text-foreground">{p.title}</h2>
@@ -201,7 +228,9 @@ function StudentPosts() {
                           >
                             <Star
                               className={`size-8 ${
-                                isSelected ? "fill-amber-400 text-amber-500" : "text-muted-foreground"
+                                isSelected
+                                  ? "fill-amber-400 text-amber-500"
+                                  : "text-muted-foreground"
                               }`}
                             />
                           </button>
@@ -213,7 +242,9 @@ function StudentPosts() {
                       <Textarea
                         placeholder="اكتب تعليقك أو مقترحاتك لتطوير المنصة (اختياري)..."
                         value={ratingComments[p.id] || ""}
-                        onChange={(e) => setRatingComments({ ...ratingComments, [p.id]: e.target.value })}
+                        onChange={(e) =>
+                          setRatingComments({ ...ratingComments, [p.id]: e.target.value })
+                        }
                         rows={3}
                       />
                     </div>

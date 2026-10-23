@@ -1,7 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Megaphone, Plus, Trash2, Edit, Loader2, BarChart2, Star, CheckCircle2 } from "lucide-react";
+import {
+  Megaphone,
+  Plus,
+  Trash2,
+  Edit,
+  Loader2,
+  BarChart2,
+  Star,
+  CheckCircle2,
+} from "lucide-react";
 import { PageHeader } from "@/components/AppShell";
 import { adminHead } from "@/components/AdminPage";
 import { getPlatformPostsFn, savePlatformPostFn, deletePlatformPostFn } from "@/lib/admin-server";
@@ -20,7 +29,10 @@ import {
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/posts")({
-  head: adminHead("منشورات المنصة والاستطلاعات", "إنشاء وإدارة منشورات المنصة واستطلاعات الرأي وتقييمات الطلاب."),
+  head: adminHead(
+    "منشورات المنصة والاستطلاعات",
+    "إنشاء وإدارة منشورات المنصة واستطلاعات الرأي وتقييمات الطلاب.",
+  ),
   loader: async () => {
     try {
       return await getPlatformPostsFn();
@@ -150,7 +162,9 @@ function AdminPosts() {
       ) : posts.length === 0 ? (
         <div className="rounded-2xl border bg-card p-12 text-center shadow-card">
           <Megaphone className="mx-auto size-12 text-muted-foreground" />
-          <h2 className="mt-4 text-xl font-bold text-primary">لا توجد منشورات أو استطلاعات حالياً</h2>
+          <h2 className="mt-4 text-xl font-bold text-primary">
+            لا توجد منشورات أو استطلاعات حالياً
+          </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             أضف إعلاناً أو استطلاع رأي أو وحدة تقييم ليراها الطلاب في لوحاتهم.
           </p>
@@ -162,22 +176,31 @@ function AdminPosts() {
               p.type === "poll"
                 ? "استطلاع رأي"
                 : p.type === "rating"
-                ? "تقييم المنصة"
-                : "منشور إعلاني";
+                  ? "تقييم المنصة"
+                  : "منشور إعلاني";
 
             const totalVotes =
               p.type === "poll" && p.votes
-                ? Object.values(p.votes).reduce((acc: number, v: any) => acc + (Array.isArray(v) ? v.length : 0), 0)
+                ? Object.values(p.votes).reduce(
+                    (acc: number, v: any) => acc + (Array.isArray(v) ? v.length : 0),
+                    0,
+                  )
                 : 0;
 
             const ratingsList = p.ratings || [];
             const avgRating =
               ratingsList.length > 0
-                ? (ratingsList.reduce((acc: number, r: any) => acc + (r.stars || 0), 0) / ratingsList.length).toFixed(1)
+                ? (
+                    ratingsList.reduce((acc: number, r: any) => acc + (r.stars || 0), 0) /
+                    ratingsList.length
+                  ).toFixed(1)
                 : "0.0";
 
             return (
-              <div key={p.id} className="rounded-2xl border bg-card p-6 shadow-card flex flex-col justify-between space-y-4">
+              <div
+                key={p.id}
+                className="rounded-2xl border bg-card p-6 shadow-card flex flex-col justify-between space-y-4"
+              >
                 <div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
@@ -197,18 +220,28 @@ function AdminPosts() {
 
                   {p.type === "poll" && (
                     <div className="mt-4 space-y-2 border-t pt-3">
-                      <p className="text-xs font-bold text-foreground">خيارات الاستطلاع ({totalVotes} صوت):</p>
+                      <p className="text-xs font-bold text-foreground">
+                        خيارات الاستطلاع ({totalVotes} صوت):
+                      </p>
                       {p.options?.map((opt: string, idx: number) => {
                         const optVotes = Array.isArray(p.votes?.[opt]) ? p.votes[opt].length : 0;
                         const pct = totalVotes > 0 ? Math.round((optVotes / totalVotes) * 100) : 0;
                         return (
-                          <div key={idx} className="bg-secondary/40 p-2.5 rounded-lg text-xs space-y-1">
+                          <div
+                            key={idx}
+                            className="bg-secondary/40 p-2.5 rounded-lg text-xs space-y-1"
+                          >
                             <div className="flex justify-between font-medium">
                               <span>{opt}</span>
-                              <span className="text-primary font-bold">{optVotes} صوت ({pct}%)</span>
+                              <span className="text-primary font-bold">
+                                {optVotes} صوت ({pct}%)
+                              </span>
                             </div>
                             <div className="w-full bg-secondary h-1.5 rounded-full overflow-hidden">
-                              <div className="bg-primary h-full transition-all" style={{ width: `${pct}%` }} />
+                              <div
+                                className="bg-primary h-full transition-all"
+                                style={{ width: `${pct}%` }}
+                              />
                             </div>
                           </div>
                         );
@@ -221,12 +254,17 @@ function AdminPosts() {
                       <div className="flex items-center gap-2">
                         <Star className="size-5 fill-amber-400 text-amber-500" />
                         <span className="font-bold text-foreground text-lg">{avgRating} / 5</span>
-                        <span className="text-xs text-muted-foreground">({ratingsList.length} تقييم)</span>
+                        <span className="text-xs text-muted-foreground">
+                          ({ratingsList.length} تقييم)
+                        </span>
                       </div>
                       {ratingsList.length > 0 && (
                         <div className="max-h-32 overflow-y-auto space-y-2 pt-2">
                           {ratingsList.map((r: any, rIdx: number) => (
-                            <div key={rIdx} className="bg-secondary/30 p-2 rounded text-xs space-y-1">
+                            <div
+                              key={rIdx}
+                              className="bg-secondary/30 p-2 rounded text-xs space-y-1"
+                            >
                               <div className="flex justify-between font-semibold">
                                 <span>{r.studentName}</span>
                                 <span className="text-amber-500">{"★".repeat(r.stars)}</span>
@@ -350,7 +388,11 @@ function AdminPosts() {
               <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
                 إلغاء
               </Button>
-              <Button type="submit" disabled={isSaving} className="bg-primary text-primary-foreground">
+              <Button
+                type="submit"
+                disabled={isSaving}
+                className="bg-primary text-primary-foreground"
+              >
                 {isSaving && <Loader2 className="ml-2 size-4 animate-spin" />}
                 حفظ ونشر
               </Button>

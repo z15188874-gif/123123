@@ -19,7 +19,10 @@ import {
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/results")({
-  head: adminHead("نتائج الطلاب", "متابعة درجات ومحاولات الطلاب في التدريبات والاختبارات وتصحيح الأسئلة المقالية."),
+  head: adminHead(
+    "نتائج الطلاب",
+    "متابعة درجات ومحاولات الطلاب في التدريبات والاختبارات وتصحيح الأسئلة المقالية.",
+  ),
   loader: async () => {
     try {
       return await getResultsFn();
@@ -174,26 +177,33 @@ function AdminResults() {
           {selectedAttempt && (
             <div className="space-y-6 pt-2">
               <div className="rounded-xl border bg-secondary/30 p-4 space-y-4">
-                <h4 className="font-bold text-foreground text-sm">إجابات الأسئلة المقدمة من الطالب:</h4>
+                <h4 className="font-bold text-foreground text-sm">
+                  إجابات الأسئلة المقدمة من الطالب:
+                </h4>
                 {selectedAttempt.answers && typeof selectedAttempt.answers === "object" ? (
-                  Object.entries(selectedAttempt.answers).map(([qId, ansText]: [string, any], idx: number) => {
-                    const qObj = (selectedAttempt.quizQuestions || []).find((q: any) => q.id === qId);
-                    return (
-                      <div key={qId} className="bg-card p-3 rounded-lg border space-y-1">
-                        <p className="text-xs font-semibold text-primary">
-                          السؤال {idx + 1}: {qObj ? qObj.text : "سؤال"} ({qObj?.type === "essay" ? "مقالي" : "اختيار من متعدد"})
-                        </p>
-                        <p className="text-sm text-foreground bg-secondary/40 p-2.5 rounded">
-                          إجابة الطالب: {String(ansText || "لم يُجب")}
-                        </p>
-                        {qObj?.type === "essay" && (
-                          <p className="text-xs text-amber-700 font-medium pt-1">
-                            * يتطلب هذا السؤال المقالي مراجعتك وتعديل الدرجة النهائية أدناه.
+                  Object.entries(selectedAttempt.answers).map(
+                    ([qId, ansText]: [string, any], idx: number) => {
+                      const qObj = (selectedAttempt.quizQuestions || []).find(
+                        (q: any) => q.id === qId,
+                      );
+                      return (
+                        <div key={qId} className="bg-card p-3 rounded-lg border space-y-1">
+                          <p className="text-xs font-semibold text-primary">
+                            السؤال {idx + 1}: {qObj ? qObj.text : "سؤال"} (
+                            {qObj?.type === "essay" ? "مقالي" : "اختيار من متعدد"})
                           </p>
-                        )}
-                      </div>
-                    );
-                  })
+                          <p className="text-sm text-foreground bg-secondary/40 p-2.5 rounded">
+                            إجابة الطالب: {String(ansText || "لم يُجب")}
+                          </p>
+                          {qObj?.type === "essay" && (
+                            <p className="text-xs text-amber-700 font-medium pt-1">
+                              * يتطلب هذا السؤال المقالي مراجعتك وتعديل الدرجة النهائية أدناه.
+                            </p>
+                          )}
+                        </div>
+                      );
+                    },
+                  )
                 ) : (
                   <p className="text-sm text-muted-foreground p-3 bg-card rounded border">
                     لا توجد إجابات تفصيلية مسجّلة لهذه المحاولة (تم تسجيل الدرجة التلقائية فقط).
@@ -203,7 +213,9 @@ function AdminResults() {
 
               <form onSubmit={handleSaveGrade} className="space-y-4 border-t pt-4">
                 <div className="space-y-2">
-                  <Label htmlFor="gradeScore">الدرجة النهائية المعتمدة (من {selectedAttempt.total_points}):</Label>
+                  <Label htmlFor="gradeScore">
+                    الدرجة النهائية المعتمدة (من {selectedAttempt.total_points}):
+                  </Label>
                   <Input
                     id="gradeScore"
                     type="number"
@@ -215,16 +227,13 @@ function AdminResults() {
                     required
                   />
                   <p className="text-xs text-muted-foreground">
-                    قم بتعديل الدرجة بإضافة نقاط الأسئلة المقالية بعد تصحيحها، ثم اضغط حفظ واعتماد لتظهر للطالب.
+                    قم بتعديل الدرجة بإضافة نقاط الأسئلة المقالية بعد تصحيحها، ثم اضغط حفظ واعتماد
+                    لتظهر للطالب.
                   </p>
                 </div>
 
                 <div className="flex justify-end gap-3 pt-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setSelectedAttempt(null)}
-                  >
+                  <Button type="button" variant="outline" onClick={() => setSelectedAttempt(null)}>
                     إلغاء
                   </Button>
                   <Button

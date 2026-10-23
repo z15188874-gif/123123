@@ -29,7 +29,15 @@ function getAdminSupabase() {
 }
 
 export function parseQuizDescription(rawDesc: string | null) {
-  if (!rawDesc) return { desc: "", questions: [], maxAttempts: 1 };
+  if (!rawDesc)
+    return {
+      desc: "",
+      questions: [],
+      maxAttempts: 1,
+      durationMinutes: 0,
+      startDate: "",
+      endDate: "",
+    };
   try {
     const parsed = JSON.parse(rawDesc);
     if (parsed && typeof parsed === "object" && Array.isArray(parsed.questions)) {
@@ -37,12 +45,22 @@ export function parseQuizDescription(rawDesc: string | null) {
         desc: parsed.desc || "",
         questions: parsed.questions,
         maxAttempts: typeof parsed.maxAttempts === "number" ? parsed.maxAttempts : 1,
+        durationMinutes: typeof parsed.durationMinutes === "number" ? parsed.durationMinutes : 0,
+        startDate: parsed.startDate || "",
+        endDate: parsed.endDate || "",
       };
     }
   } catch {
     // Plain text description
   }
-  return { desc: rawDesc, questions: [], maxAttempts: 1 };
+  return {
+    desc: rawDesc,
+    questions: [],
+    maxAttempts: 1,
+    durationMinutes: 0,
+    startDate: "",
+    endDate: "",
+  };
 }
 
 // 1. Dashboard Stats
@@ -50,18 +68,30 @@ export const getAdminStatsFn = createServerFn({ method: "GET" })
   .middleware([requireAdminAuth])
   .handler(async () => {
     const supabase = getAdminSupabase();
-    const [studentsRes, lessonsRes, quizzesRes, attemptsRes] = await Promise.all([
+    const [studentsRes, lessonsRes, quizzesRes, attemptsRes, submissionsRes] = await Promise.all([
       supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "student"),
       supabase.from("lessons").select("*", { count: "exact", head: true }),
-      supabase.from("quizzes").select("*", { count: "exact", head: true }),
-      supabase.from("quiz_attempts").select("*", { count: "exact", head: true }),
+      supabase
+        .from("quizzes")
+        .select("*", { count: "exact", head: true })
+        .neq("grade", "quiz_submission"),
+      supabase
+        .from("quiz_attempts")
+        .select("*", { count: "exact", head: true })
+        .catch(() => ({ count: 0 })),
+      supabase
+        .from("quizzes")
+        .select("*", { count: "exact", head: true })
+        .eq("grade", "quiz_submission"),
     ]);
+
+    const totalAttempts = (attemptsRes.count ?? 0) + (submissionsRes.count ?? 0);
 
     return {
       studentsCount: studentsRes.count ?? 0,
       lessonsCount: lessonsRes.count ?? 0,
       quizzesCount: quizzesRes.count ?? 0,
-      attemptsCount: attemptsRes.count ?? 0,
+      attemptsCount: totalAttempts,
     };
   });
 
@@ -231,6 +261,7 @@ export const getQuizzesFn = createServerFn({ method: "GET" })
     const { data, error } = await supabase
       .from("quizzes")
       .select("*")
+      .neq("grade", "quiz_submission")
       .order("created_at", { ascending: false });
 
     if (error) throw new Error(error.message);
@@ -241,6 +272,9 @@ export const getQuizzesFn = createServerFn({ method: "GET" })
         parsedDescription: parsed.desc,
         questions: parsed.questions,
         maxAttempts: parsed.maxAttempts,
+        durationMinutes: parsed.durationMinutes,
+        startDate: parsed.startDate,
+        endDate: parsed.endDate,
       };
     });
   });
@@ -256,6 +290,9 @@ export const saveQuizFn = createServerFn({ method: "POST" })
       published?: boolean;
       questions?: any[];
       maxAttempts?: number;
+      durationMinutes?: number;
+      startDate?: string;
+      endDate?: string;
     }) => {
       if (!input.title) throw new Error("عنوان التدريب مطلوب");
       return input;
@@ -267,6 +304,9 @@ export const saveQuizFn = createServerFn({ method: "POST" })
       desc: data.description?.trim() || "",
       questions: data.questions || [],
       maxAttempts: typeof data.maxAttempts === "number" ? data.maxAttempts : 1,
+      durationMinutes: typeof data.durationMinutes === "number" ? data.durationMinutes : 0,
+      startDate: data.startDate || "",
+      endDate: data.endDate || "",
     };
 
     const payload = {
@@ -304,35 +344,123 @@ export const getResultsFn = createServerFn({ method: "GET" })
   .middleware([requireAdminAuth])
   .handler(async () => {
     const supabase = getAdminSupabase();
-    const { data, error } = await supabase
-      .from("quiz_attempts")
-      .select(
-        `
-        *,
-        student:profiles(id, full_name, grade),
-        quiz:quizzes(id, title, description)
-      `,
-      )
-      .order("submitted_at", { ascending: false });
 
-    if (error) throw new Error(error.message);
-    return (data || []).map((att: any) => {
+    const { data: submissions } = await supabase
+      .from("quizzes")
+      .select("*")
+      .eq("grade", "quiz_submission")
+      .order("created_at", { ascending: false });
+
+    const { data: rawAttempts } = await supabase
+      .from("quiz_attempts")
+      .select(`*, student:profiles(id, full_name, grade), quiz:quizzes(id, title, description)`)
+      .catch(() => ({ data: [] }));
+
+    const { data: profiles } = await supabase.from("profiles").select("id, full_name, grade");
+    const { data: allQuizzes } = await supabase
+      .from("quizzes")
+      .select("id, title, description")
+      .neq("grade", "quiz_submission");
+
+    const profilesMap = new Map((profiles || []).map((p) => [p.id, p]));
+    const quizzesMap = new Map((allQuizzes || []).map((q) => [q.id, q]));
+
+    const results: any[] = [];
+
+    for (const sub of submissions || []) {
+      try {
+        const parsed = JSON.parse(sub.description || "{}");
+        const student = profilesMap.get(parsed.studentId) || {
+          id: parsed.studentId,
+          full_name: "طالب",
+          grade: "",
+        };
+        const quiz = quizzesMap.get(parsed.quizId) || {
+          id: parsed.quizId,
+          title: "اختبار",
+          description: "",
+        };
+        const parsedQuiz = parseQuizDescription(quiz.description);
+
+        results.push({
+          id: sub.id,
+          attemptId: parsed.attemptId || sub.id,
+          quiz_id: parsed.quizId,
+          student_id: parsed.studentId,
+          score: parsed.score ?? 0,
+          total_points: parsed.totalPoints ?? 10,
+          graded: parsed.graded ?? false,
+          feedback: parsed.feedback || "",
+          answers: parsed.answers || {},
+          submitted_at: parsed.submitted_at || sub.created_at,
+          student,
+          quiz,
+          quizQuestions: parsedQuiz.questions,
+        });
+      } catch {}
+    }
+
+    for (const att of rawAttempts || []) {
       const parsedQuiz = parseQuizDescription(att.quiz?.description);
-      return {
-        ...att,
+      results.push({
+        id: att.id,
+        attemptId: att.id,
+        quiz_id: att.quiz_id,
+        student_id: att.student_id,
+        score: att.score ?? 0,
+        total_points: att.total_points ?? 10,
+        graded: (att as any).graded ?? false,
+        feedback: (att as any).feedback || "",
+        answers: (att as any).answers || {},
+        submitted_at: att.submitted_at,
+        student: att.student || profilesMap.get(att.student_id) || { full_name: "طالب" },
+        quiz: att.quiz || quizzesMap.get(att.quiz_id) || { title: "اختبار" },
         quizQuestions: parsedQuiz.questions,
-      };
-    });
+      });
+    }
+
+    return results.sort(
+      (a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime(),
+    );
   });
 
 export const updateQuizAttemptScoreFn = createServerFn({ method: "POST" })
   .middleware([requireAdminAuth])
-  .validator((input: { attemptId: string; newScore: number; feedback?: string; graded?: boolean }) => {
-    if (!input.attemptId) throw new Error("معرّف المحاولة مطلوب");
-    return input;
-  })
+  .validator(
+    (input: { attemptId: string; newScore: number; feedback?: string; graded?: boolean }) => {
+      if (!input.attemptId) throw new Error("معرّف المحاولة مطلوب");
+      return input;
+    },
+  )
   .handler(async ({ data }) => {
     const supabase = getAdminSupabase();
+
+    const { data: subRow } = await supabase
+      .from("quizzes")
+      .select("*")
+      .eq("id", data.attemptId)
+      .eq("grade", "quiz_submission")
+      .single();
+
+    if (subRow) {
+      try {
+        const parsed = JSON.parse(subRow.description || "{}");
+        parsed.score = data.newScore;
+        parsed.graded = true;
+        if (data.feedback !== undefined) parsed.feedback = data.feedback;
+
+        const { error } = await supabase
+          .from("quizzes")
+          .update({ description: JSON.stringify(parsed) })
+          .eq("id", data.attemptId);
+
+        if (error) throw new Error(error.message);
+        return { success: true };
+      } catch (e: any) {
+        throw new Error(e.message || "فشل تحديث درجة الاختبار");
+      }
+    }
+
     const updatePayload: any = {
       score: data.newScore,
       graded: true,
@@ -384,6 +512,7 @@ export const getStudentContentFn = createServerFn({ method: "GET" })
       .from("quizzes")
       .select("*")
       .eq("published", true)
+      .neq("grade", "quiz_submission")
       .order("created_at", { ascending: false });
 
     if (studentGrade) {
@@ -395,12 +524,30 @@ export const getStudentContentFn = createServerFn({ method: "GET" })
     const { data: attempts } = await supabase
       .from("quiz_attempts")
       .select("*")
-      .eq("student_id", user.id);
+      .eq("student_id", user.id)
+      .catch(() => ({ data: [] }));
+
+    const { data: submissions } = await supabase
+      .from("quizzes")
+      .select("*")
+      .eq("grade", "quiz_submission");
 
     const attemptsMap = new Map<string, number>();
     (attempts || []).forEach((att) => {
       const count = attemptsMap.get(att.quiz_id) || 0;
       attemptsMap.set(att.quiz_id, count + 1);
+    });
+
+    (submissions || []).forEach((sub) => {
+      try {
+        const parsed = JSON.parse(sub.description || "{}");
+        if (parsed.studentId === user.id && parsed.quizId) {
+          const count = attemptsMap.get(parsed.quizId) || 0;
+          if (!attempts?.some((a: any) => a.id === sub.id)) {
+            attemptsMap.set(parsed.quizId, count + 1);
+          }
+        }
+      } catch {}
     });
 
     const quizzes = (quizzesData || []).map((q: any) => {
@@ -411,6 +558,9 @@ export const getStudentContentFn = createServerFn({ method: "GET" })
         parsedDescription: parsed.desc,
         questions: parsed.questions,
         maxAttempts: parsed.maxAttempts,
+        durationMinutes: parsed.durationMinutes,
+        startDate: parsed.startDate,
+        endDate: parsed.endDate,
         attemptCount,
       };
     });
@@ -424,74 +574,98 @@ export const getStudentContentFn = createServerFn({ method: "GET" })
 
 export const submitQuizAttemptFn = createServerFn({ method: "POST" })
   .middleware([requireStudentAuth])
-  .validator((input: { quizId: string; score: number; totalPoints: number; answers?: Record<string, string> }) => {
-    if (!input.quizId) throw new Error("معرّف التدريب مطلوب");
-    return input;
-  })
+  .validator(
+    (input: {
+      quizId: string;
+      score: number;
+      totalPoints: number;
+      answers?: Record<string, string>;
+    }) => {
+      if (!input.quizId) throw new Error("معرّف التدريب مطلوب");
+      return input;
+    },
+  )
   .handler(async ({ data, context }) => {
     const supabase = getAdminSupabase();
     const user = context.user;
 
-    const insertData: any = {
-      quiz_id: data.quizId,
-      student_id: user.id,
+    const attemptId = crypto.randomUUID();
+    const payload = {
+      attemptId,
+      quizId: data.quizId,
+      studentId: user.id,
       score: data.score,
-      total_points: data.totalPoints,
+      totalPoints: data.totalPoints,
+      answers: data.answers || {},
       graded: false,
+      feedback: "",
+      submitted_at: new Date().toISOString(),
     };
 
-    if (data.answers) {
-      insertData.answers = data.answers;
-    }
-
-    const { error } = await supabase.from("quiz_attempts").insert(insertData);
+    const { error } = await supabase.from("quizzes").insert({
+      title: `محاولة اختبار`,
+      grade: "quiz_submission",
+      description: JSON.stringify(payload),
+      published: true,
+    });
 
     if (error) {
-      const { error: err2 } = await supabase.from("quiz_attempts").insert({
-        quiz_id: data.quizId,
-        student_id: user.id,
-        score: data.score,
-        total_points: data.totalPoints,
-      });
-      if (err2) throw new Error(err2.message);
+      await supabase
+        .from("quiz_attempts")
+        .insert({
+          quiz_id: data.quizId,
+          student_id: user.id,
+          score: data.score,
+          total_points: data.totalPoints,
+        })
+        .catch(() => {});
+      throw new Error(error.message);
     }
     return { success: true };
   });
 
-export const getPlatformPostsFn = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const supabase = getAdminSupabase();
-    const { data, error } = await supabase
-      .from("quizzes")
-      .select("*")
-      .in("grade", ["announcement", "poll", "rating"])
-      .order("created_at", { ascending: false });
+export const getPlatformPostsFn = createServerFn({ method: "GET" }).handler(async () => {
+  const supabase = getAdminSupabase();
+  const { data, error } = await supabase
+    .from("quizzes")
+    .select("*")
+    .in("grade", ["announcement", "poll", "rating"])
+    .order("created_at", { ascending: false });
 
-    if (error) return [];
-    return (data || []).map((item: any) => {
-      let parsed: any = {};
-      try {
-        parsed = JSON.parse(item.description || "{}");
-      } catch {
-        parsed = { content: item.description };
-      }
-      return {
-        id: item.id,
-        title: item.title,
-        type: item.grade,
-        published: item.published,
-        created_at: item.created_at,
-        ...parsed,
-      };
-    });
+  if (error) return [];
+  return (data || []).map((item: any) => {
+    let parsed: any = {};
+    try {
+      parsed = JSON.parse(item.description || "{}");
+    } catch {
+      parsed = { content: item.description };
+    }
+    return {
+      id: item.id,
+      title: item.title,
+      type: item.grade,
+      published: item.published,
+      created_at: item.created_at,
+      ...parsed,
+    };
   });
+});
 
 export const savePlatformPostFn = createServerFn({ method: "POST" })
   .middleware([requireAdminAuth])
-  .validator((input: { id?: string; title: string; type: string; content?: string; options?: string[]; published?: boolean }) => {
-    if (!input.title || !input.type) throw new Error("العنوان ونوع المنشور مطلوبان");
-    return input;
-  })
+  .validator(
+    (input: {
+      id?: string;
+      title: string;
+      type: string;
+      content?: string;
+      options?: string[];
+      published?: boolean;
+    }) => {
+      if (!input.title || !input.type) throw new Error("العنوان ونوع المنشور مطلوبان");
+      return input;
+    },
+  )
   .handler(async ({ data }) => {
     const supabase = getAdminSupabase();
 
@@ -513,7 +687,11 @@ export const savePlatformPostFn = createServerFn({ method: "POST" })
     };
 
     if (data.id) {
-      const { data: existing } = await supabase.from("quizzes").select("description").eq("id", data.id).single();
+      const { data: existing } = await supabase
+        .from("quizzes")
+        .select("description")
+        .eq("id", data.id)
+        .single();
       if (existing?.description) {
         try {
           const oldParsed = JSON.parse(existing.description);

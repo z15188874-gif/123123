@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ClipboardList, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { PageHeader } from "@/components/AppShell";
@@ -42,6 +42,7 @@ function StudentQuizzes() {
   const [submitted, setSubmitted] = useState(false);
   const [finalScore, setFinalScore] = useState(0);
   const [totalPoints, setTotalPoints] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
 
   const submitMutation = useMutation({
     mutationFn: (vars: any) => submitQuizAttemptFn({ data: vars }),
@@ -55,7 +56,58 @@ function StudentQuizzes() {
     },
   });
 
+  const handleSubmitQuizAuto = useCallback(() => {
+    if (!activeQuiz || submitted) return;
+    let calculatedScore = 0;
+    let maxPoints = 0;
+    const questions = activeQuiz.questions || [];
+    questions.forEach((q: any) => {
+      const qPoints = q.points || 5;
+      maxPoints += qPoints;
+      if (q.type === "mcq") {
+        const studentAns = answers[q.id];
+        if (studentAns && studentAns === q.correctAnswer) {
+          calculatedScore += qPoints;
+        }
+      }
+    });
+
+    setFinalScore(calculatedScore);
+    setTotalPoints(maxPoints > 0 ? maxPoints : 10);
+
+    submitMutation.mutate({
+      quizId: activeQuiz.id,
+      score: calculatedScore,
+      totalPoints: maxPoints > 0 ? maxPoints : 10,
+      answers,
+    });
+  }, [activeQuiz, submitted, answers, submitMutation]);
+
+  useEffect(() => {
+    if (!activeQuiz || submitted || timeRemaining === null) return;
+    if (timeRemaining <= 0) {
+      toast.error("انتهى وقت الامتحان! جاري تسليم إجاباتك تلقائياً.");
+      handleSubmitQuizAuto();
+      return;
+    }
+    const timer = setInterval(() => {
+      setTimeRemaining((prev) => (prev !== null && prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [activeQuiz, submitted, timeRemaining, handleSubmitQuizAuto]);
+
   const handleStartQuiz = (qz: any) => {
+    const now = new Date();
+    if (qz.startDate && new Date(qz.startDate) > now) {
+      toast.error(
+        `لم يبدأ موعد الاختبار بعد. يبدأ في: ${new Date(qz.startDate).toLocaleString("ar-EG")}`,
+      );
+      return;
+    }
+    if (qz.endDate && new Date(qz.endDate) < now) {
+      toast.error("انتهى موعد هذا الاختبار.");
+      return;
+    }
     if (qz.attemptCount >= qz.maxAttempts) {
       toast.error("لقد استنفذت الحد الأقصى لعدد محاولات هذا الامتحان.");
       return;
@@ -65,6 +117,11 @@ function StudentQuizzes() {
     setSubmitted(false);
     setFinalScore(0);
     setTotalPoints(0);
+    if (qz.durationMinutes && qz.durationMinutes > 0) {
+      setTimeRemaining(qz.durationMinutes * 60);
+    } else {
+      setTimeRemaining(null);
+    }
   };
 
   const handleAnswerChange = (qId: string, val: string) => {
@@ -139,6 +196,18 @@ function StudentQuizzes() {
             {activeQuiz.parsedDescription || "أجب عن الأسئلة المرفقة بعناية."}
           </p>
 
+          {timeRemaining !== null && !submitted && (
+            <div className="mt-4 bg-amber-50 border border-amber-200 text-amber-900 px-4 py-2.5 rounded-xl flex items-center justify-between font-bold text-sm">
+              <span>الوقت المتبقي للامتحان:</span>
+              <span className="text-base font-mono bg-white px-3 py-1 rounded-md shadow-sm border border-amber-200 text-primary">
+                {Math.floor(timeRemaining / 60)
+                  .toString()
+                  .padStart(2, "0")}
+                :{(timeRemaining % 60).toString().padStart(2, "0")}
+              </span>
+            </div>
+          )}
+
           {submitted ? (
             <div className="my-8 rounded-xl bg-emerald-50 border border-emerald-200 p-6 text-center text-emerald-900">
               <CheckCircle2 className="mx-auto size-12 text-emerald-600 mb-2" />
@@ -150,7 +219,9 @@ function StudentQuizzes() {
                 </span>
               </p>
               <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-900 text-xs leading-relaxed text-right">
-                <strong>ملاحظة هامة:</strong> تم إرسال إجاباتك المقالية إلى المعلم للمراجعة، **ولا تُعتبر النتيجة النهائية نهائية أو تُرسل لك درجات الأسئلة المقالية إلا بعد تصحيحها ومراجعتها واعتمادها من قبل المدير/المعلم**.
+                <strong>ملاحظة هامة:</strong> تم إرسال إجاباتك المقالية إلى المعلم للمراجعة، **ولا
+                تُعتبر النتيجة النهائية نهائية أو تُرسل لك درجات الأسئلة المقالية إلا بعد تصحيحها
+                ومراجعتها واعتمادها من قبل المدير/المعلم**.
               </div>
               <Button onClick={() => setActiveQuiz(null)} className="mt-6">
                 الانتقال للتدريبات الأخرى
@@ -225,7 +296,11 @@ function StudentQuizzes() {
       ) : (
         <div className="grid gap-6 md:grid-cols-2">
           {quizzes.map((qz: any) => {
+            const now = new Date();
+            const notStarted = qz.startDate && new Date(qz.startDate) > now;
+            const expired = qz.endDate && new Date(qz.endDate) < now;
             const exhausted = qz.attemptCount >= qz.maxAttempts;
+
             return (
               <div
                 key={qz.id}
@@ -244,9 +319,15 @@ function StudentQuizzes() {
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                     {qz.parsedDescription || "اختبر معلوماتك في هذا الدرس."}
                   </p>
-                  <p className="mt-3 text-xs font-medium text-muted-foreground">
-                    عدد الأسئلة: {qz.questions?.length || 0}
-                  </p>
+
+                  <div className="mt-3 space-y-1 text-xs text-muted-foreground border-t pt-2">
+                    <p>عدد الأسئلة: {qz.questions?.length || 0}</p>
+                    {qz.durationMinutes > 0 && <p>مدة الامتحان: {qz.durationMinutes} دقيقة</p>}
+                    {qz.startDate && (
+                      <p>يبدأ في: {new Date(qz.startDate).toLocaleString("ar-EG")}</p>
+                    )}
+                    {qz.endDate && <p>ينتهي في: {new Date(qz.endDate).toLocaleString("ar-EG")}</p>}
+                  </div>
                 </div>
 
                 <div className="mt-6 pt-4 border-t flex items-center justify-between">
@@ -256,6 +337,14 @@ function StudentQuizzes() {
                   {exhausted ? (
                     <span className="text-xs font-bold text-destructive px-3 py-1.5 rounded-lg bg-destructive/10">
                       استنفذت عدد المحاولات
+                    </span>
+                  ) : notStarted ? (
+                    <span className="text-xs font-bold text-amber-700 px-3 py-1.5 rounded-lg bg-amber-100">
+                      يبدأ قريباً
+                    </span>
+                  ) : expired ? (
+                    <span className="text-xs font-bold text-destructive px-3 py-1.5 rounded-lg bg-destructive/10">
+                      انتهى موعد الاختبار
                     </span>
                   ) : (
                     <Button
