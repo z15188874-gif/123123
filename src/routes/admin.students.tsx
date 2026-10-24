@@ -281,7 +281,11 @@ function AdminStudentsManagement() {
                         {new Date(st.created_at).toLocaleDateString("ar-EG")}
                       </td>
                       <td className="p-4 text-left space-x-2 space-x-reverse">
-                        <Button size="sm" variant="outline" onClick={() => handleOpenEditStudent(st)}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleOpenEditStudent(st)}
+                        >
                           <Edit className="size-4" />
                         </Button>
                         <Button
@@ -369,7 +373,11 @@ function AdminStudentsManagement() {
                           {new Date(ast.created_at).toLocaleDateString("ar-EG")}
                         </td>
                         <td className="p-4 text-left space-x-2 space-x-reverse">
-                          <Button size="sm" variant="outline" onClick={() => handleOpenEditAssistant(ast)}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleOpenEditAssistant(ast)}
+                          >
                             <Edit className="size-4" />
                           </Button>
                           <Button
@@ -399,7 +407,9 @@ function AdminStudentsManagement() {
         <DialogContent className="text-right" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-primary">إضافة طالب جديد</DialogTitle>
-            <DialogDescription>أنشئ حساباً جديداً للطالب بالبريد الإلكتروني وكلمة المرور.</DialogDescription>
+            <DialogDescription>
+              أنشئ حساباً جديداً للطالب بالبريد الإلكتروني وكلمة المرور.
+            </DialogDescription>
           </DialogHeader>
           <form
             onSubmit={(e) => {
@@ -450,7 +460,9 @@ function AdminStudentsManagement() {
                 إلغاء
               </Button>
               <Button type="submit" disabled={createStudentMutation.isPending}>
-                {createStudentMutation.isPending && <Loader2 className="ml-2 size-4 animate-spin" />}
+                {createStudentMutation.isPending && (
+                  <Loader2 className="ml-2 size-4 animate-spin" />
+                )}
                 حفظ وإنشاء الحساب
               </Button>
             </div>
@@ -462,7 +474,9 @@ function AdminStudentsManagement() {
       <Dialog open={!!editingStudent} onOpenChange={(open) => !open && setEditingStudent(null)}>
         <DialogContent className="text-right" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-primary">تعديل بيانات الطالب</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-primary">
+              تعديل بيانات الطالب
+            </DialogTitle>
             <DialogDescription>تعديل اسم الطالب، صفه الدراسي، أو كلمة المرور.</DialogDescription>
           </DialogHeader>
           <form
@@ -501,7 +515,9 @@ function AdminStudentsManagement() {
                 إلغاء
               </Button>
               <Button type="submit" disabled={updateStudentMutation.isPending}>
-                {updateStudentMutation.isPending && <Loader2 className="ml-2 size-4 animate-spin" />}
+                {updateStudentMutation.isPending && (
+                  <Loader2 className="ml-2 size-4 animate-spin" />
+                )}
                 حفظ التعديلات
               </Button>
             </div>
@@ -513,7 +529,9 @@ function AdminStudentsManagement() {
       <Dialog open={isAddAssistantOpen} onOpenChange={setIsAddAssistantOpen}>
         <DialogContent className="text-right" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-primary">إضافة مساعد إداري جديد</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-primary">
+              إضافة مساعد إداري جديد
+            </DialogTitle>
             <DialogDescription>
               أنشئ حساب مساعد وحدد صلاحيات الوصول الخاصة به في لوحة التحكم.
             </DialogDescription>
@@ -615,7 +633,9 @@ function AdminStudentsManagement() {
                 إلغاء
               </Button>
               <Button type="submit" disabled={createAssistantMutation.isPending}>
-                {createAssistantMutation.isPending && <Loader2 className="ml-2 size-4 animate-spin" />}
+                {createAssistantMutation.isPending && (
+                  <Loader2 className="ml-2 size-4 animate-spin" />
+                )}
                 حفظ وإنشاء حساب المساعد
               </Button>
             </div>
@@ -627,7 +647,9 @@ function AdminStudentsManagement() {
       <Dialog open={!!editingAssistant} onOpenChange={(open) => !open && setEditingAssistant(null)}>
         <DialogContent className="text-right" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-primary">تعديل بيانات وصلاحيات المساعد</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-primary">
+              تعديل بيانات وصلاحيات المساعد
+            </DialogTitle>
             <DialogDescription>تعديل اسم المساعد، كلمة المرور، أو الصلاحيات.</DialogDescription>
           </DialogHeader>
           <form
@@ -646,7 +668,11 @@ function AdminStudentsManagement() {
           >
             <div>
               <Label>اسم المساعد الكامل</Label>
-              <Input required value={assistantName} onChange={(e) => setAssistantName(e.target.value)} />
+              <Input
+                required
+                value={assistantName}
+                onChange={(e) => setAssistantName(e.target.value)}
+              />
             </div>
             <div>
               <Label>كلمة المرور الجديدة (اختياري)</Label>
@@ -713,7 +739,9 @@ function AdminStudentsManagement() {
                 إلغاء
               </Button>
               <Button type="submit" disabled={updateAssistantMutation.isPending}>
-                {updateAssistantMutation.isPending && <Loader2 className="ml-2 size-4 animate-spin" />}
+                {updateAssistantMutation.isPending && (
+                  <Loader2 className="ml-2 size-4 animate-spin" />
+                )}
                 حفظ التعديلات
               </Button>
             </div>

@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ClipboardList, Plus, Trash2, Edit, Loader2, HelpCircle } from "lucide-react";
+import { ClipboardList, Plus, Trash2, Edit, Loader2, HelpCircle, Upload } from "lucide-react";
 import { PageHeader } from "@/components/AppShell";
 import { adminHead } from "@/components/AdminPage";
-import { getQuizzesFn, saveQuizFn, deleteQuizFn } from "@/lib/admin-server";
+import { getQuizzesFn, saveQuizFn, deleteQuizFn, generateQuizFromPdfFn } from "@/lib/admin-server";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,6 +54,52 @@ function AdminExercises() {
   const [endDate, setEndDate] = useState("");
   const [questions, setQuestions] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== "application/pdf" && !file.name.endsWith(".pdf")) {
+      toast.error("يرجى اختيار ملف PDF صحيح");
+      return;
+    }
+
+    setIsGeneratingPdf(true);
+    toast.info("جاري تحليل ملف الـ PDF وتوليد الأسئلة بالذكاء الاصطناعي...");
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const base64String = (reader.result as string).split(",")[1];
+        const res = await generateQuizFromPdfFn({
+          data: {
+            base64Data: base64String,
+            mimeType: file.type || "application/pdf",
+          },
+        });
+
+        if (res && Array.isArray(res.questions)) {
+          const formatted = res.questions.map((q: any) => ({
+            ...q,
+            id: Math.random().toString(36).substring(2, 9),
+          }));
+          setQuestions((prev) => [...prev, ...formatted]);
+          toast.success(`تم بنجاح توليد واستخراج ${formatted.length} سؤالاً من ملف الـ PDF!`);
+        }
+      } catch (err: any) {
+        toast.error(err.message || "فشل توليد الأسئلة من ملف الـ PDF");
+      } finally {
+        setIsGeneratingPdf(false);
+        e.target.value = "";
+      }
+    };
+    reader.onerror = () => {
+      setIsGeneratingPdf(false);
+      toast.error("فشل قراءة الملف");
+    };
+    reader.readAsDataURL(file);
+  };
 
   const resetForm = () => {
     setEditingQuiz(null);
@@ -348,11 +394,22 @@ function AdminExercises() {
 
             {/* Questions Section */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between border-b pb-2">
+              <div className="flex flex-wrap items-center justify-between border-b pb-2 gap-2">
                 <h3 className="font-bold text-foreground flex items-center gap-2">
                   <HelpCircle className="size-5 text-primary" /> أسئلة الاختبار ({questions.length})
                 </h3>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2 items-center">
+                  <label className="cursor-pointer inline-flex items-center gap-1.5 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold px-3 py-1.5 rounded-lg transition">
+                    <Upload className="size-4" />
+                    {isGeneratingPdf ? "جاري التوليد..." : "رفع امتحان PDF وتوليد الأسئلة"}
+                    <input
+                      type="file"
+                      accept=".pdf,application/pdf"
+                      className="hidden"
+                      disabled={isGeneratingPdf}
+                      onChange={handlePdfUpload}
+                    />
+                  </label>
                   <Button type="button" size="sm" onClick={handleAddMcqQuestion}>
                     + اختيار من متعدد
                   </Button>

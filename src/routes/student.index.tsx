@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ClipboardList, Megaphone, PlayCircle } from "lucide-react";
+import { ClipboardList, Megaphone, PlayCircle, Trophy } from "lucide-react";
 import { PageHeader } from "@/components/AppShell";
 import { ProfilesSection } from "@/components/DeveloperCard";
+import { getWeeklyHonorBoardFn } from "@/lib/admin-server";
 
 export const Route = createFileRoute("/student/")({
   head: () => ({
@@ -12,6 +13,13 @@ export const Route = createFileRoute("/student/")({
       { property: "og:description", content: "محاضرات وتدريبات التاريخ في مكان واحد." },
     ],
   }),
+  loader: async () => {
+    try {
+      return await getWeeklyHonorBoardFn();
+    } catch {
+      return [];
+    }
+  },
   component: StudentHome,
 });
 
@@ -34,6 +42,12 @@ function StudentHome() {
       icon: Megaphone,
       title: "منشورات المنصة والاستطلاعات",
       text: "تابع أحدث الإعلانات، شارك في استطلاعات الرأي، وقيم المنصة.",
+    },
+    {
+      to: "/student/leaderboard",
+      icon: Trophy,
+      title: "لوحة الشرف الأسبوعية",
+      text: "تابع قائمة الطلاب الأوائل والمتفوقين على المنصة هذا الأسبوع.",
     },
   ] as const;
   return (

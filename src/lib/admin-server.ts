@@ -7,6 +7,7 @@ import {
   SUPABASE_PUBLISHABLE_KEY as DEFAULT_KEY,
 } from "@/integrations/supabase/client";
 import { requireAdminAuth, requireStudentAuth } from "@/integrations/supabase/auth-middleware";
+import { GoogleGenAI } from "@google/genai";
 
 function getAdminSupabase() {
   const SUPABASE_URL =
@@ -69,8 +70,15 @@ export const getAdminStatsFn = createServerFn({ method: "GET" })
   .handler(async () => {
     const supabase = getAdminSupabase();
     const [studentsRes, lessonsRes, quizzesRes, attemptsRes, submissionsRes] = await Promise.all([
-      supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "student").catch(() => ({ count: 0 })),
-      supabase.from("lessons").select("*", { count: "exact", head: true }).catch(() => ({ count: 0 })),
+      supabase
+        .from("profiles")
+        .select("*", { count: "exact", head: true })
+        .eq("role", "student")
+        .catch(() => ({ count: 0 })),
+      supabase
+        .from("lessons")
+        .select("*", { count: "exact", head: true })
+        .catch(() => ({ count: 0 })),
       supabase
         .from("quizzes")
         .select("*", { count: "exact", head: true })
@@ -916,3 +924,125 @@ export const deleteAssistantFn = createServerFn({ method: "POST" })
     return { success: true };
   });
 
+export const generateQuizFromPdfFn = createServerFn({ method: "POST" })
+  .middleware([requireAdminAuth])
+  .validator((input: { base64Data: string; mimeType?: string }) => {
+    if (!input.base64Data) throw new Error("ملف PDF مطلوب");
+    return input;
+  })
+  .handler(async ({ data }) => {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("مفتاح Gemini API غير متاح في الخادم");
+    }
+    const ai = new GoogleGenAI({ apiKey });
+
+    try {
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: [
+          {
+            inlineData: {
+              data: data.base64Data,
+              mimeType: data.mimeType || "application/pdf",
+            },
+          },
+          {
+            text: `قم بتحليل مستند الـ PDF هذا واستخراج أسئلة الامتحان منه بعناية واحترافية.
+قم بتوليد أسئلة اختيار من متعدد (mcq) مع 4 خيارات وإجابة صحيحة، وأسئلة مقالية (essay).
+يجب أن يكون الناتج بصيغة JSON حصرياً على شكل مصفوفة من الكائنات بالشكل التالي بدون أي نصوص إضافية أو علامات markdown مثل \`\`\`json:
+[
+  {
+    "text": "نص السؤال هنا",
+    "type": "mcq",
+    "options": ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
+    "correctAnswer": "الخيار الأول",
+    "points": 5
+  },
+  {
+    "text": "نص السؤال المقالي هنا",
+    "type": "essay",
+    "points": 10
+  }
+]`,
+          },
+        ],
+      });
+
+      const textOutput = response.text || "";
+      const cleaned = textOutput
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+      const parsedQuestions = JSON.parse(cleaned);
+      if (!Array.isArray(parsedQuestions)) {
+        throw new Error("تنسيق الرد غير صحيح");
+      }
+      return { success: true, questions: parsedQuestions };
+    } catch (err: any) {
+      throw new Error("فشل توليد الأسئلة من ملف الـ PDF: " + (err.message || "خطأ غير معروف"));
+    }
+  });
+
+export const getWeeklyHonorBoardFn = createServerFn({ method: "GET" })
+  .middleware([requireStudentAuth])
+  .handler(async () => {
+    const supabase = getAdminSupabase();
+    const { data: attempts } = await supabase
+      .from("quiz_attempts")
+      .select("student_id, student_name, score, total_points, created_at");
+
+    const { data: submissions } = await supabase
+      .from("quizzes")
+      .select("grade, description, created_at, title")
+      .eq("grade", "quiz_submission");
+
+    const studentMap: Record<
+      string,
+      { name: string; totalScore: number; maxPossible: number; count: number }
+    > = {};
+
+    (attempts || []).forEach((att: any) => {
+      const sId = att.student_id;
+      const sName = att.student_name || "طالب";
+      if (!studentMap[sId]) {
+        studentMap[sId] = { name: sName, totalScore: 0, maxPossible: 0, count: 0 };
+      }
+      studentMap[sId].totalScore += att.score || 0;
+      studentMap[sId].maxPossible += att.total_points || 10;
+      studentMap[sId].count += 1;
+    });
+
+    (submissions || []).forEach((sub: any) => {
+      try {
+        const parsed = JSON.parse(sub.description || "{}");
+        const sId = parsed.studentId;
+        const sName = parsed.studentName || "طالب";
+        const score = parsed.score || 0;
+        const total = parsed.totalPoints || 10;
+        if (sId) {
+          if (!studentMap[sId]) {
+            studentMap[sId] = { name: sName, totalScore: 0, maxPossible: 0, count: 0 };
+          }
+          studentMap[sId].totalScore += score;
+          studentMap[sId].maxPossible += total;
+          studentMap[sId].count += 1;
+        }
+      } catch {}
+    });
+
+    const leaderboard = Object.values(studentMap)
+      .map((item) => ({
+        name: item.name,
+        totalScore: item.totalScore,
+        maxPossible: item.maxPossible > 0 ? item.maxPossible : 1,
+        percentage: Math.round(
+          (item.totalScore / (item.maxPossible > 0 ? item.maxPossible : 1)) * 100,
+        ),
+        count: item.count,
+      }))
+      .sort((a, b) => b.totalScore - a.totalScore || b.percentage - a.percentage)
+      .slice(0, 15);
+
+    return leaderboard;
+  });

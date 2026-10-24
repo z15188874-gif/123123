@@ -1,5 +1,5 @@
 import { createFileRoute, isRedirect, redirect } from "@tanstack/react-router";
-import { ClipboardList, Home, Megaphone, PlayCircle } from "lucide-react";
+import { ClipboardList, Home, Megaphone, PlayCircle, Trophy } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { validateStudentSession } from "@/lib/auth-server";
 
@@ -30,6 +30,7 @@ export const Route = createFileRoute("/student")({
         { to: "/student/lectures", label: "المحاضرات المصوّرة", icon: PlayCircle },
         { to: "/student/quizzes", label: "التدريبات والاختبارات", icon: ClipboardList },
         { to: "/student/posts", label: "منشورات المنصة", icon: Megaphone },
+        { to: "/student/leaderboard", label: "لوحة الشرف الأسبوعية", icon: Trophy },
       ]}
     />
   ),

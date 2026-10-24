@@ -85,26 +85,23 @@ export const loginServerFn = createServerFn({ method: "POST" })
     if (authError || !authData.session || !authData.user) {
       throw new Error(authError?.message || "Invalid credentials");
     }
-const { data: profile, error: profileError } = await supabase
-  .from("profiles")
-    .select("role")
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
       .eq("id", authData.user.id)
-        .maybeSingle();
+      .maybeSingle();
 
-        if (profileError) {
-          console.error("[Login] Failed to verify profile role:", profileError);
-            throw new Error("Could not verify account role");
-            }
+    if (profileError) {
+      console.error("[Login] Failed to verify profile role:", profileError);
+      throw new Error("Could not verify account role");
+    }
 
-            const role =
-              profile?.role === "admin" || profile?.role === "student"
-                  ? profile.role
-                      : null;
+    const role = profile?.role === "admin" || profile?.role === "student" ? profile.role : null;
 
-                      if (!role) {
-                        throw new Error("UNAUTHORIZED_ROLE");
-                        }
- 
+    if (!role) {
+      throw new Error("UNAUTHORIZED_ROLE");
+    }
+
     const request = getRequest();
     const isHttps = getIsHttps(request);
 

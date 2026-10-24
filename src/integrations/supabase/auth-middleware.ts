@@ -382,23 +382,20 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
 
     const supabase = createAuthedClient(activeToken ?? undefined);
 
-const { data: profile, error: profileError } = await supabase
-  .from("profiles")
-  .select("role")
-  .eq("id", user.id)
-  .maybeSingle();
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
 
-if (profileError) {
-  console.error("[AuthMiddleware] Failed to verify profile role:", profileError);
-  throw new Error("Unauthorized: Could not verify account role");
-}
+    if (profileError) {
+      console.error("[AuthMiddleware] Failed to verify profile role:", profileError);
+      throw new Error("Unauthorized: Could not verify account role");
+    }
 
-const role =
-  profile?.role === "admin" || profile?.role === "student"
-    ? profile.role
-    : null;
+    const role = profile?.role === "admin" || profile?.role === "student" ? profile.role : null;
 
-return next({
+    return next({
       context: {
         supabase,
         userId: user.id,
