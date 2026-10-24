@@ -394,6 +394,11 @@ function AdminExercises() {
 
             {/* Questions Section */}
             <div className="space-y-4">
+              <div className="rounded-xl border border-gold/40 bg-gold/5 p-4 text-xs leading-6 text-foreground">
+                <p className="font-bold text-primary mb-1">💡 تنبيه للمشرف أو المساعد البشري:</p>
+                عند رفع ملف PDF يتم توليد الأسئلة وعرضها هنا للمراجعة **قبل نشرها نهائياً**. يمكنك تعديل النصوص، تغيير الخيارات، وتحديد الإجابة الصحيحة أو حذف وإضافة أي سؤال بكل حريتك كعضو بشري قبل الضغط على حفظ ونشر التدريب.
+              </div>
+
               <div className="flex flex-wrap items-center justify-between border-b pb-2 gap-2">
                 <h3 className="font-bold text-foreground flex items-center gap-2">
                   <HelpCircle className="size-5 text-primary" /> أسئلة الاختبار ({questions.length})
