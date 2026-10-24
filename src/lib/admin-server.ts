@@ -14,11 +14,12 @@ function getAdminSupabase() {
     process.env["SUPABASE_URL"] || process.env["VITE_SUPABASE_URL"] || DEFAULT_URL;
   const SUPABASE_SERVICE_ROLE_KEY =
     process.env["SUPABASE_SERVICE_ROLE_KEY"] ||
+    process.env["VITE_SUPABASE_SERVICE_ROLE_KEY"] ||
     process.env["SUPABASE_PUBLISHABLE_KEY"] ||
     DEFAULT_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error("Missing Supabase configuration");
+    throw new Error("خطأ إداري: مفتاح الخدمة السري (SUPABASE_SERVICE_ROLE_KEY) غير معرّف في بيئة الخادم. يرجى إضافته في إعدادات البيئة.");
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
