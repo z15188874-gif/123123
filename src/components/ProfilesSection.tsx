@@ -53,7 +53,7 @@ export function DeveloperCard() {
             />
           </button>
 
-          <div className="flex-1 min-w-0 bg-gradient-to-r from-slate-900/90 via-slate-800/90 to-slate-900/90 border border-gold/30 p-2.5 sm:p-3 rounded-xl shadow-sm text-slate-100">
+          <div className="flex-1 min-w-0 bg-slate-900/95 border border-gold/40 p-2.5 sm:p-3 rounded-xl shadow-sm text-slate-100">
             <button
               type="button"
               onClick={() => setIsOpen(true)}
@@ -197,7 +197,7 @@ export function TeacherCard() {
             />
           </button>
 
-          <div className="flex-1 min-w-0 bg-gradient-to-r from-slate-900/90 via-slate-800/90 to-slate-900/90 border border-gold/30 p-2.5 sm:p-3 rounded-xl shadow-sm text-slate-100">
+          <div className="flex-1 min-w-0 bg-slate-900/95 border border-gold/40 p-2.5 sm:p-3 rounded-xl shadow-sm text-slate-100">
             <button
               type="button"
               onClick={() => setIsOpen(true)}

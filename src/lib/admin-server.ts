@@ -69,12 +69,13 @@ export const getAdminStatsFn = createServerFn({ method: "GET" })
   .handler(async () => {
     const supabase = getAdminSupabase();
     const [studentsRes, lessonsRes, quizzesRes, attemptsRes, submissionsRes] = await Promise.all([
-      supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "student"),
-      supabase.from("lessons").select("*", { count: "exact", head: true }),
+      supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "student").catch(() => ({ count: 0 })),
+      supabase.from("lessons").select("*", { count: "exact", head: true }).catch(() => ({ count: 0 })),
       supabase
         .from("quizzes")
         .select("*", { count: "exact", head: true })
-        .neq("grade", "quiz_submission"),
+        .neq("grade", "quiz_submission")
+        .catch(() => ({ count: 0 })),
       supabase
         .from("quiz_attempts")
         .select("*", { count: "exact", head: true })
@@ -82,7 +83,8 @@ export const getAdminStatsFn = createServerFn({ method: "GET" })
       supabase
         .from("quizzes")
         .select("*", { count: "exact", head: true })
-        .eq("grade", "quiz_submission"),
+        .eq("grade", "quiz_submission")
+        .catch(() => ({ count: 0 })),
     ]);
 
     const totalAttempts = (attemptsRes.count ?? 0) + (submissionsRes.count ?? 0);
@@ -226,7 +228,7 @@ export const saveLessonFn = createServerFn({ method: "POST" })
       description: data.description?.trim() || null,
       grade: data.grade?.trim() || null,
       video_url: data.videoUrl?.trim() || null,
-      published: data.published ?? false,
+      published: data.published ?? true,
     };
 
     if (data.id) {
@@ -313,7 +315,7 @@ export const saveQuizFn = createServerFn({ method: "POST" })
       title: data.title.trim(),
       description: JSON.stringify(quizContent),
       grade: data.grade?.trim() || null,
-      published: data.published ?? false,
+      published: data.published ?? true,
     };
 
     if (data.id) {
@@ -821,3 +823,96 @@ export const submitPlatformRatingFn = createServerFn({ method: "POST" })
     if (updateErr) throw new Error(updateErr.message);
     return { success: true };
   });
+
+// 5. Assistants Management
+export const getAssistantsFn = createServerFn({ method: "GET" })
+  .middleware([requireAdminAuth])
+  .handler(async () => {
+    const supabase = getAdminSupabase();
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("role", "assistant")
+      .order("created_at", { ascending: false });
+
+    if (error) return [];
+    return data || [];
+  });
+
+export const createAssistantFn = createServerFn({ method: "POST" })
+  .middleware([requireAdminAuth])
+  .validator((input: { fullName: string; email: string; password: string; permissions?: any }) => {
+    if (!input.fullName || !input.email || !input.password) {
+      throw new Error("جميع الحقول الأساسية للمساعد مطلوبة");
+    }
+    return input;
+  })
+  .handler(async ({ data }) => {
+    const supabase = getAdminSupabase();
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email: data.email.trim(),
+      password: data.password,
+      email_confirm: true,
+      user_metadata: { full_name: data.fullName, role: "assistant" },
+      app_metadata: { role: "assistant" },
+    });
+
+    if (authError || !authData.user) {
+      throw new Error(authError?.message || "فشل إنشاء حساب المساعد");
+    }
+
+    const userId = authData.user.id;
+    const { error: profileError } = await supabase.from("profiles").upsert({
+      id: userId,
+      full_name: data.fullName.trim(),
+      grade: JSON.stringify(
+        data.permissions || {
+          canAddStudents: true,
+          canAddQuizzes: true,
+          canAddLessons: true,
+          canViewResults: true,
+        },
+      ),
+      role: "assistant",
+    });
+
+    if (profileError) throw new Error(profileError.message);
+    return { success: true, userId };
+  });
+
+export const updateAssistantFn = createServerFn({ method: "POST" })
+  .middleware([requireAdminAuth])
+  .validator((input: { id: string; fullName: string; password?: string; permissions?: any }) => {
+    if (!input.id || !input.fullName) throw new Error("معرّف المساعد والاسم مطلوبان");
+    return input;
+  })
+  .handler(async ({ data }) => {
+    const supabase = getAdminSupabase();
+    if (data.password && data.password.length >= 6) {
+      await supabase.auth.admin.updateUserById(data.id, { password: data.password });
+    }
+    const updatePayload: any = {
+      full_name: data.fullName.trim(),
+    };
+    if (data.permissions) {
+      updatePayload.grade = JSON.stringify(data.permissions);
+    }
+    const { error } = await supabase.from("profiles").update(updatePayload).eq("id", data.id);
+
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+export const deleteAssistantFn = createServerFn({ method: "POST" })
+  .middleware([requireAdminAuth])
+  .validator((input: { id: string }) => {
+    if (!input.id) throw new Error("معرّف المساعد مطلوب");
+    return input;
+  })
+  .handler(async ({ data }) => {
+    const supabase = getAdminSupabase();
+    await supabase.auth.admin.deleteUser(data.id);
+    await supabase.from("profiles").delete().eq("id", data.id);
+    return { success: true };
+  });
+
