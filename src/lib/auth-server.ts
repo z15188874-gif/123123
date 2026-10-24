@@ -22,7 +22,7 @@ export type SessionInfo = {
 
 export type LoginResult = {
   success: true;
-  role: "admin" | "student";
+  role: "admin" | "assistant" | "student";
   userId: string;
   email: string;
   accessToken: string;
@@ -96,7 +96,10 @@ export const loginServerFn = createServerFn({ method: "POST" })
       throw new Error("Could not verify account role");
     }
 
-    const role = profile?.role === "admin" || profile?.role === "student" ? profile.role : null;
+    const role =
+      profile?.role === "admin" || profile?.role === "assistant" || profile?.role === "student"
+        ? profile.role
+        : null;
 
     if (!role) {
       throw new Error("UNAUTHORIZED_ROLE");

@@ -329,11 +329,16 @@ function AdminExercises() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label>الصف الدراسي</Label>
-                  <Input
+                  <select
                     value={grade}
                     onChange={(e) => setGrade(e.target.value)}
-                    placeholder="مثال: الصف الثالث الثانوي"
-                  />
+                    className="w-full rounded-xl border border-gold/40 bg-card/90 py-3.5 px-4 text-sm text-foreground outline-none transition duration-200 focus:border-gold focus:ring-2 focus:ring-gold/30 shadow-sm"
+                  >
+                    <option value="">عام (جميع الصفوف)</option>
+                    <option value="الصف الأول الثانوي">الصف الأول الثانوي</option>
+                    <option value="الصف الثاني الثانوي">الصف الثاني الثانوي</option>
+                    <option value="الصف الثالث الثانوي">الصف الثالث الثانوي</option>
+                  </select>
                 </div>
                 <div>
                   <Label>عدد مرات محاولات الامتحان المسموحة</Label>

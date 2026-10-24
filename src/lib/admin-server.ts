@@ -1047,3 +1047,32 @@ export const getWeeklyHonorBoardFn = createServerFn({ method: "GET" })
 
     return leaderboard;
   });
+
+export const getCurrentUserPermissionsFn = createServerFn({ method: "GET" })
+  .middleware([requireAdminAuth])
+  .handler(async ({ context }) => {
+    const supabase = getAdminSupabase();
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", context.userId)
+      .maybeSingle();
+
+    if (!profile) return { role: "admin", permissions: null };
+
+    if (profile.role === "assistant") {
+      let perms = {
+        canAddStudents: true,
+        canAddQuizzes: true,
+        canAddLessons: true,
+        canViewResults: true,
+      };
+      try {
+        const parsed = JSON.parse(profile.grade || "{}");
+        perms = { ...perms, ...parsed };
+      } catch {}
+      return { role: "assistant", permissions: perms, fullName: profile.full_name };
+    }
+
+    return { role: "admin", permissions: null, fullName: profile.full_name };
+  });

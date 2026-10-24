@@ -410,8 +410,8 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
 export const requireAdminAuth = createMiddleware({ type: "function" })
   .middleware([requireSupabaseAuth])
   .server(async ({ next, context }) => {
-    if (context.role !== "admin") {
-      throw new Error("Forbidden: Requires admin role");
+    if (context.role !== "admin" && context.role !== "assistant") {
+      throw new Error("Forbidden: Requires admin or assistant role");
     }
     return next({
       context: {

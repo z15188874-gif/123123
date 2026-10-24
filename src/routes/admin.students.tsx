@@ -449,11 +449,17 @@ function AdminStudentsManagement() {
             </div>
             <div>
               <Label>الصف الدراسي</Label>
-              <Input
+              <select
+                required
                 value={grade}
                 onChange={(e) => setGrade(e.target.value)}
-                placeholder="مثال: الصف الأول الثانوي"
-              />
+                className="w-full rounded-xl border border-gold/40 bg-card/90 py-3.5 px-4 text-sm text-foreground outline-none transition duration-200 focus:border-gold focus:ring-2 focus:ring-gold/30 shadow-sm"
+              >
+                <option value="">اختر الصف الدراسي...</option>
+                <option value="الصف الأول الثانوي">الصف الأول الثانوي</option>
+                <option value="الصف الثاني الثانوي">الصف الثاني الثانوي</option>
+                <option value="الصف الثالث الثانوي">الصف الثالث الثانوي</option>
+              </select>
             </div>
             <div className="flex justify-end gap-2 pt-4">
               <Button type="button" variant="outline" onClick={() => setIsAddStudentOpen(false)}>
@@ -499,7 +505,17 @@ function AdminStudentsManagement() {
             </div>
             <div>
               <Label>الصف الدراسي</Label>
-              <Input value={grade} onChange={(e) => setGrade(e.target.value)} />
+              <select
+                required
+                value={grade}
+                onChange={(e) => setGrade(e.target.value)}
+                className="w-full rounded-xl border border-gold/40 bg-card/90 py-3.5 px-4 text-sm text-foreground outline-none transition duration-200 focus:border-gold focus:ring-2 focus:ring-gold/30 shadow-sm"
+              >
+                <option value="">اختر الصف الدراسي...</option>
+                <option value="الصف الأول الثانوي">الصف الأول الثانوي</option>
+                <option value="الصف الثاني الثانوي">الصف الثاني الثانوي</option>
+                <option value="الصف الثالث الثانوي">الصف الثالث الثانوي</option>
+              </select>
             </div>
             <div>
               <Label>كلمة المرور الجديدة (اختياري)</Label>

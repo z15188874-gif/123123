@@ -106,7 +106,7 @@ function Login() {
         refresh_token: result.refreshToken,
       });
 
-      if (result.role === "admin") {
+      if (result.role === "admin" || result.role === "assistant") {
         setSuccessMessage("تم تسجيل الدخول بنجاح! جاري التوجيه إلى لوحة الإدارة...");
         await router.invalidate();
         window.location.assign("/admin");
