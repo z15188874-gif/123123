@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute } from "@tanstack/react-router";
 import { Trophy, Award, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/AppShell";

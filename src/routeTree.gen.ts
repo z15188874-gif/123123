@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminExercisesRouteImport } from './routes/admin.exercises'
@@ -19,7 +20,9 @@ import { Route as AdminPostsRouteImport } from './routes/admin.posts'
 import { Route as AdminResultsRouteImport } from './routes/admin.results'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminStudentsRouteImport } from './routes/admin.students'
+import { Route as AssistantIndexRouteImport } from './routes/assistant.index'
 import { Route as StudentIndexRouteImport } from './routes/student.index'
+import { Route as StudentLeaderboardRouteImport } from './routes/student.leaderboard'
 import { Route as StudentLecturesRouteImport } from './routes/student.lectures'
 import { Route as StudentPostsRouteImport } from './routes/student.posts'
 import { Route as StudentQuizzesRouteImport } from './routes/student.quizzes'
@@ -32,6 +35,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssistantRoute = AssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StudentRoute = StudentRouteImport.update({
@@ -74,9 +82,19 @@ const AdminStudentsRoute = AdminStudentsRouteImport.update({
   path: '/students',
   getParentRoute: () => AdminRoute,
 } as any)
+const AssistantIndexRoute = AssistantIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AssistantRoute,
+} as any)
 const StudentIndexRoute = StudentIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentLeaderboardRoute = StudentLeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
   getParentRoute: () => StudentRoute,
 } as any)
 const StudentLecturesRoute = StudentLecturesRouteImport.update({
@@ -98,6 +116,7 @@ const StudentQuizzesRoute = StudentQuizzesRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/assistant': typeof AssistantRouteWithChildren
   '/student': typeof StudentRouteWithChildren
   '/admin/exercises': typeof AdminExercisesRoute
   '/admin/lectures': typeof AdminLecturesRoute
@@ -105,10 +124,12 @@ export interface FileRoutesByFullPath {
   '/admin/results': typeof AdminResultsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/students': typeof AdminStudentsRoute
+  '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/lectures': typeof StudentLecturesRoute
   '/student/posts': typeof StudentPostsRoute
   '/student/quizzes': typeof StudentQuizzesRoute
   '/admin/': typeof AdminIndexRoute
+  '/assistant/': typeof AssistantIndexRoute
   '/student/': typeof StudentIndexRoute
 }
 export interface FileRoutesByTo {
@@ -119,16 +140,19 @@ export interface FileRoutesByTo {
   '/admin/results': typeof AdminResultsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/students': typeof AdminStudentsRoute
+  '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/lectures': typeof StudentLecturesRoute
   '/student/posts': typeof StudentPostsRoute
   '/student/quizzes': typeof StudentQuizzesRoute
   '/admin': typeof AdminIndexRoute
+  '/assistant': typeof AssistantIndexRoute
   '/student': typeof StudentIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/assistant': typeof AssistantRouteWithChildren
   '/student': typeof StudentRouteWithChildren
   '/admin/exercises': typeof AdminExercisesRoute
   '/admin/lectures': typeof AdminLecturesRoute
@@ -136,10 +160,12 @@ export interface FileRoutesById {
   '/admin/results': typeof AdminResultsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/students': typeof AdminStudentsRoute
+  '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/lectures': typeof StudentLecturesRoute
   '/student/posts': typeof StudentPostsRoute
   '/student/quizzes': typeof StudentQuizzesRoute
   '/admin/': typeof AdminIndexRoute
+  '/assistant/': typeof AssistantIndexRoute
   '/student/': typeof StudentIndexRoute
 }
 export interface FileRouteTypes {
@@ -147,6 +173,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/assistant'
     | '/student'
     | '/admin/exercises'
     | '/admin/lectures'
@@ -154,10 +181,12 @@ export interface FileRouteTypes {
     | '/admin/results'
     | '/admin/settings'
     | '/admin/students'
+    | '/student/leaderboard'
     | '/student/lectures'
     | '/student/posts'
     | '/student/quizzes'
     | '/admin/'
+    | '/assistant/'
     | '/student/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -168,15 +197,18 @@ export interface FileRouteTypes {
     | '/admin/results'
     | '/admin/settings'
     | '/admin/students'
+    | '/student/leaderboard'
     | '/student/lectures'
     | '/student/posts'
     | '/student/quizzes'
     | '/admin'
+    | '/assistant'
     | '/student'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/assistant'
     | '/student'
     | '/admin/exercises'
     | '/admin/lectures'
@@ -184,16 +216,19 @@ export interface FileRouteTypes {
     | '/admin/results'
     | '/admin/settings'
     | '/admin/students'
+    | '/student/leaderboard'
     | '/student/lectures'
     | '/student/posts'
     | '/student/quizzes'
     | '/admin/'
+    | '/assistant/'
     | '/student/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  AssistantRoute: typeof AssistantRouteWithChildren
   StudentRoute: typeof StudentRouteWithChildren
 }
 
@@ -211,6 +246,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assistant': {
+      id: '/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AssistantRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/student': {
@@ -269,11 +311,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminStudentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/assistant/': {
+      id: '/assistant/'
+      path: '/'
+      fullPath: '/assistant/'
+      preLoaderRoute: typeof AssistantIndexRouteImport
+      parentRoute: typeof AssistantRoute
+    }
     '/student/': {
       id: '/student/'
       path: '/'
       fullPath: '/student/'
       preLoaderRoute: typeof StudentIndexRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/leaderboard': {
+      id: '/student/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/student/leaderboard'
+      preLoaderRoute: typeof StudentLeaderboardRouteImport
       parentRoute: typeof StudentRoute
     }
     '/student/lectures': {
@@ -322,7 +378,20 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface AssistantRouteChildren {
+  AssistantIndexRoute: typeof AssistantIndexRoute
+}
+
+const AssistantRouteChildren: AssistantRouteChildren = {
+  AssistantIndexRoute: AssistantIndexRoute,
+}
+
+const AssistantRouteWithChildren = AssistantRoute._addFileChildren(
+  AssistantRouteChildren,
+)
+
 interface StudentRouteChildren {
+  StudentLeaderboardRoute: typeof StudentLeaderboardRoute
   StudentLecturesRoute: typeof StudentLecturesRoute
   StudentPostsRoute: typeof StudentPostsRoute
   StudentQuizzesRoute: typeof StudentQuizzesRoute
@@ -330,6 +399,7 @@ interface StudentRouteChildren {
 }
 
 const StudentRouteChildren: StudentRouteChildren = {
+  StudentLeaderboardRoute: StudentLeaderboardRoute,
   StudentLecturesRoute: StudentLecturesRoute,
   StudentPostsRoute: StudentPostsRoute,
   StudentQuizzesRoute: StudentQuizzesRoute,
@@ -342,6 +412,7 @@ const StudentRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  AssistantRoute: AssistantRouteWithChildren,
   StudentRoute: StudentRouteWithChildren,
 }
 export const routeTree = rootRouteImport

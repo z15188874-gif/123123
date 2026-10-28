@@ -384,7 +384,7 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("role")
+      .select("role, grade")
       .eq("id", user.id)
       .maybeSingle();
 
@@ -393,7 +393,23 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
       throw new Error("Unauthorized: Could not verify account role");
     }
 
-    const role = profile?.role === "admin" || profile?.role === "student" ? profile.role : null;
+    const isAssistant =
+      user.app_metadata?.role === "assistant" ||
+      user.user_metadata?.role === "assistant" ||
+      profile?.role === "assistant" ||
+      Boolean(
+        profile?.grade &&
+        (profile.grade.includes('"isAssistant":true') || profile.grade.includes('"canAdd')),
+      );
+
+    let role: "admin" | "assistant" | "student" | null = null;
+    if (isAssistant) {
+      role = "assistant";
+    } else if (profile?.role === "admin") {
+      role = "admin";
+    } else if (profile?.role === "student") {
+      role = "student";
+    }
 
     return next({
       context: {
@@ -424,7 +440,7 @@ export const requireAdminAuth = createMiddleware({ type: "function" })
 export const requireStudentAuth = createMiddleware({ type: "function" })
   .middleware([requireSupabaseAuth])
   .server(async ({ next, context }) => {
-    if (context.role !== "student") {
+    if (context.role !== "student" && context.role !== "admin" && context.role !== "assistant") {
       throw new Error("Forbidden: Requires student role");
     }
     return next({

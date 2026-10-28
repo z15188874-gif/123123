@@ -1,0 +1,6 @@
+{
+  "summary":  "خطة شاملة ومفصلة لسد وإصلاح الثغرات الأمنية في منصة الأستاذ سعيد مطر التعليمية:\n1. إزالة الاحتياطي الخطير لمفتاح الخدمة في getAdminSupabase وقصره حصرياً على SUPABASE_SERVICE_ROLE_KEY.\n2. حماية getStudentContentFn بالـ middleware وتجريد الإجابات النموذجية (correctAnswer) قبل إرسال الأسئلة للواجهة.\n3. نقل تصحيح الامتحانات بالكامل إلى الخادم في submitQuizAttemptFn والتحقق من الحد الأقصى للمحاولات وتحديث student.quizzes.tsx لعرض النتيجة والإجابات من رد السيرفر مع الحفاظ التام على الشكل والواجهة الحالية.\n4. حماية getPlatformPostsFn و getWeeklyHonorBoardFn وإخفاء أسماء وتعليقات الطلاب في التقييمات عن الطلاب الآخرين.",
+  "updatedAt":  "2026-10-28T12:01:41.971833991Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}

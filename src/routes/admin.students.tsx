@@ -339,7 +339,9 @@ function AdminStudentsManagement() {
                     let parsedPerms: any = {};
                     try {
                       parsedPerms = ast.grade ? JSON.parse(ast.grade) : {};
-                    } catch {}
+                    } catch {
+                      /* ignore */
+                    }
                     return (
                       <tr key={ast.id} className="hover:bg-secondary/20 transition">
                         <td className="p-4 font-bold text-foreground flex items-center gap-2">

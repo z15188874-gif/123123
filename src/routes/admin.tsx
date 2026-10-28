@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute, isRedirect, redirect } from "@tanstack/react-router";
 import {
   BarChart3,
@@ -34,15 +33,23 @@ export const Route = createFileRoute("/admin")({
       });
     }
   },
+  loader: async () => {
+    try {
+      const perms = await getCurrentUserPermissionsFn().catch(() => null);
+      return { perms };
+    } catch {
+      return { perms: null };
+    }
+  },
   component: AdminLayout,
 });
 
 function AdminLayout() {
-  const initialData = Route.useLoaderData();
+  const initialData = Route.useRouteContext();
   const { data: userData } = useQuery({
     queryKey: ["current-user-perms"],
     queryFn: () => getCurrentUserPermissionsFn(),
-    initialData: initialData.perms,
+    initialData: initialData?.perms,
   });
 
   const role = userData?.role || "admin";

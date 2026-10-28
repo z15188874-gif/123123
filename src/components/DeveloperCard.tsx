@@ -1,1 +1,1 @@
-export { DeveloperCard, TeacherCard, ProfilesSection } from "./ProfilesSection";
+export { DeveloperCard, TeacherCard, ProfilesSection, ZqCodeCard } from "./ProfilesSection";

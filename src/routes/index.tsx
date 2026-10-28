@@ -106,12 +106,18 @@ function Login() {
         refresh_token: result.refreshToken,
       });
 
-      if (result.role === "admin" || result.role === "assistant") {
+      if (result.role === "admin") {
         setSuccessMessage("تم تسجيل الدخول بنجاح! جاري التوجيه إلى لوحة الإدارة...");
         await router.invalidate();
         window.location.assign("/admin");
+      } else if (result.role === "assistant") {
+        setSuccessMessage("تم تسجيل الدخول بنجاح! جاري التوجيه إلى لوحة المساعد...");
+        await router.invalidate();
+        window.location.assign("/assistant");
       } else if (result.role === "student") {
-        setSuccessMessage("تم تسجيل الدخول بنجاح! جاري التوجيه إلى لوحة الطالب...");
+        setSuccessMessage(
+          `مرحبًا بك يا ${result.fullName || "طالبنا العزيز"}! جاري توجيهك إلى لوحة الطالب...`,
+        );
         await router.invalidate();
         window.location.assign("/student");
       } else {

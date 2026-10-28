@@ -60,7 +60,7 @@ function StudentLectures() {
             >
               <div>
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
-                  {les.grade || "عام"}
+                  متاح لجميع الصفوف
                 </span>
                 <h3 className="mt-3 text-xl font-bold text-foreground">{les.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">

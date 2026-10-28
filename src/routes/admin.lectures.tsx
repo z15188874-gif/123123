@@ -46,9 +46,9 @@ function AdminLectures() {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [grade, setGrade] = useState("");
+  const [grade, setGrade] = useState("عام لجميع الطلاب");
   const [videoUrl, setVideoUrl] = useState("");
-  const [published, setPublished] = useState(false);
+  const [published, setPublished] = useState(true);
 
   const saveMutation = useMutation({
     mutationFn: (vars: any) => saveLessonFn({ data: vars }),
@@ -78,18 +78,17 @@ function AdminLectures() {
     setEditingLesson(null);
     setTitle("");
     setDescription("");
-    setGrade("");
-    setVideoUrl("");
-    setPublished(false);
+    setGrade("عام لجميع الطلاب");
+    setPublished(true);
   };
 
   const handleOpenEdit = (lesson: any) => {
     setEditingLesson(lesson);
     setTitle(lesson.title || "");
     setDescription(lesson.description || "");
-    setGrade(lesson.grade || "");
+    setGrade("عام لجميع الطلاب");
     setVideoUrl(lesson.video_url || "");
-    setPublished(lesson.published ?? false);
+    setPublished(lesson.published ?? true);
     setIsOpen(true);
   };
 
@@ -133,7 +132,7 @@ function AdminLectures() {
               <div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
-                    {les.grade || "عام"}
+                    متاح لجميع الطلاب
                   </span>
                   <span
                     className={`text-xs px-2 py-0.5 rounded-full font-medium ${
@@ -193,7 +192,7 @@ function AdminLectures() {
                 id: editingLesson?.id,
                 title,
                 description,
-                grade,
+                grade: "عام لجميع الطلاب",
                 videoUrl,
                 published,
               });
@@ -210,12 +209,11 @@ function AdminLectures() {
               />
             </div>
             <div>
-              <Label>الصف الدراسي</Label>
-              <Input
-                value={grade}
-                onChange={(e) => setGrade(e.target.value)}
-                placeholder="مثال: الصف الثالث الثانوي"
-              />
+              <Label>نطاق النشر والطلاب</Label>
+              <div className="flex items-center gap-2 p-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-800 text-sm font-semibold">
+                <span className="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                متاح لجميع الطلاب تلقائياً (الصف الأول والثاني والثالث الثانوي)
+              </div>
             </div>
             <div>
               <Label>رابط الفيديو (يوتيوب أو رابط مباشر)</Label>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageCircle, User, ZoomIn } from "lucide-react";
+import { ExternalLink, Facebook, MessageCircle, ZoomIn } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,9 +11,12 @@ import { Button } from "@/components/ui/button";
 
 export function ProfilesSection() {
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <DeveloperCard />
-      <TeacherCard />
+    <div className="space-y-3">
+      <div className="grid gap-4 md:grid-cols-2">
+        <DeveloperCard />
+        <TeacherCard />
+      </div>
+      <ZqCodeCard />
     </div>
   );
 }
@@ -285,6 +288,181 @@ export function TeacherCard() {
           </div>
           <div className="p-2 flex justify-between items-center text-white">
             <span className="text-sm font-semibold">{teacherName}</span>
+            <Button variant="secondary" size="sm" onClick={() => setIsZoomedOpen(false)}>
+              إغلاق العرض
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+export function ZqCodeCard() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isZoomedOpen, setIsZoomedOpen] = useState(false);
+
+  const officeName = "مكتب ZQ Code للحلول البرمجية";
+  const designerText = "تم تصميم هذه المنصة بواسطة مكتب ZQ Code";
+  const facebookUrl = "https://www.facebook.com/share/1JGekk2QQa/";
+  const logoUrl = "/assets/aistudio/IMG-20261026-WA0062_89b0890e.jpg";
+  const supervisor = "م. زياد علي محمد خاطر";
+  const whatsappNumber = "201102161231";
+  const displayWhatsapp = "01102161231";
+
+  return (
+    <>
+      <div className="w-full max-w-full overflow-hidden rounded-xl border border-cyan-500/30 bg-gradient-to-r from-slate-950/95 via-slate-900/90 to-slate-950/95 backdrop-blur-md p-2.5 sm:p-3 shadow-md transition-all duration-300 hover:border-cyan-400/60 hover:shadow-cyan-950/20 box-border">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5 w-full">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <button
+              type="button"
+              onClick={() => setIsOpen(true)}
+              className="relative size-8 sm:size-9 shrink-0 overflow-hidden rounded-lg border border-cyan-400/60 bg-black transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-cyan-400 cursor-pointer shadow group"
+              title="مكتب ZQ Code"
+            >
+              <img
+                src={logoUrl}
+                alt="شعار مكتب ZQ Code"
+                className="h-full w-full object-cover transition duration-300 group-hover:scale-110"
+                onError={(e) => {
+                  (e.currentTarget as HTMLElement).style.display = "none";
+                }}
+              />
+            </button>
+
+            <div className="min-w-0 flex-1 text-right">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] font-bold text-cyan-400">مكتب ZQ Code</span>
+                <span className="text-slate-500 text-[10px]">•</span>
+                <span className="text-[10px] text-slate-400">{supervisor}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsOpen(true)}
+                className="font-display text-xs sm:text-[13px] font-bold text-slate-100 hover:text-cyan-300 transition text-right truncate block w-full mt-0.5 cursor-pointer"
+                title={designerText}
+              >
+                {designerText}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0 justify-between md:justify-end border-t md:border-t-0 pt-2 md:pt-0 border-slate-800/80 w-full md:w-auto">
+            <button
+              type="button"
+              onClick={() => setIsOpen(true)}
+              className="text-[11px] text-slate-300 hover:text-cyan-300 transition px-2 py-1 rounded-lg hover:bg-slate-800/60 font-medium cursor-pointer shrink-0"
+            >
+              تفاصيل المكتب
+            </button>
+
+            <a
+              href={facebookUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#1877F2]/20 hover:bg-[#1877F2]/35 text-[#1877F2] hover:text-[#38bdf8] border border-[#1877F2]/40 px-2.5 py-1 text-xs font-bold transition hover:scale-105 shadow-sm shrink-0"
+              title="صفحة مكتب ZQ Code على فيسبوك"
+            >
+              <Facebook className="size-3.5 fill-current shrink-0" />
+              <span className="shrink-0">فيسبوك</span>
+              <ExternalLink className="size-3 opacity-70 shrink-0" />
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent
+          className="sm:max-w-md text-right bg-slate-950 border border-cyan-500/40 text-slate-100"
+          dir="rtl"
+        >
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-cyan-400 text-right flex items-center justify-between">
+              <span>{officeName}</span>
+              <span className="text-xs font-normal text-slate-400">{supervisor}</span>
+            </DialogTitle>
+            <DialogDescription className="text-slate-300 text-right text-xs">
+              تصميم وتطوير المنصات التعليمية والمواقع والتطبيقات البرمجية
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col items-center text-center my-3">
+            <div
+              onClick={() => setIsZoomedOpen(true)}
+              className="relative size-28 overflow-hidden rounded-2xl border-2 border-cyan-400/50 shadow-xl bg-black mb-3 cursor-pointer group transition hover:scale-105"
+              title="اضغط لتكبير الشعار"
+            >
+              <img
+                src={logoUrl}
+                alt="شعار مكتب ZQ Code"
+                className="h-full w-full object-cover transition duration-300 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                <ZoomIn className="size-7 text-cyan-300" />
+              </div>
+            </div>
+            <p className="text-[11px] text-slate-400 mb-2">
+              اضغط على الشعار لتكبيره وعرضه بدقة عالية
+            </p>
+
+            <h3 className="text-base font-bold text-slate-100">مكتب ZQ Code للبرمجيات</h3>
+            <p className="text-xs text-cyan-400 font-medium mt-0.5">إشراف وتطوير: {supervisor}</p>
+
+            <p className="mt-3 text-xs leading-relaxed text-slate-200 bg-slate-900/90 p-3.5 rounded-xl border border-cyan-500/30 text-right w-full">
+              {designerText}. نسعد بتقديم خدمات تصميم وتطوير المنصات التعليمية، والمواقع
+              الإلكترونية، وتطبيقات الويب المخصصة بأحدث التقنيات وأعلى معايير الجودة والأداء.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2 mt-1">
+            <Button
+              asChild
+              className="w-full bg-[#1877F2] hover:bg-[#1877F2]/90 text-white font-bold flex items-center justify-center gap-2"
+            >
+              <a href={facebookUrl} target="_blank" rel="noopener noreferrer">
+                <Facebook className="size-4 fill-current" />
+                زيارة صفحة مكتب ZQ Code على فيسبوك
+                <ExternalLink className="size-3.5" />
+              </a>
+            </Button>
+            <div className="flex gap-2">
+              <Button
+                asChild
+                className="flex-1 bg-whatsapp hover:bg-whatsapp/90 text-white font-medium flex items-center justify-center gap-1.5 text-xs"
+              >
+                <a
+                  href={`https://wa.me/${whatsappNumber}?text=مرحباً%20مكتب%20ZQ%20Code،%20أود%20التواصل%20بخصوص%20تطوير%20منصة%20أو%20موقع.`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <MessageCircle className="size-3.5" />
+                  واتساب ({displayWhatsapp})
+                </a>
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setIsOpen(false)}
+                className="border-slate-800 text-slate-300 hover:bg-slate-900 text-xs"
+              >
+                إغلاق
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isZoomedOpen} onOpenChange={setIsZoomedOpen}>
+        <DialogContent className="max-w-3xl bg-black/95 border-none p-2 text-center" dir="rtl">
+          <div className="relative flex items-center justify-center min-h-[70vh]">
+            <img
+              src={logoUrl}
+              alt="شعار مكتب ZQ Code"
+              className="max-h-[85vh] max-w-full object-contain rounded-lg shadow-2xl"
+            />
+          </div>
+          <div className="p-2 flex justify-between items-center text-white">
+            <span className="text-sm font-semibold">مكتب ZQ Code - {supervisor}</span>
             <Button variant="secondary" size="sm" onClick={() => setIsZoomedOpen(false)}>
               إغلاق العرض
             </Button>

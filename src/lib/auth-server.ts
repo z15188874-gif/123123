@@ -18,6 +18,8 @@ export type SessionInfo = {
   userId: string;
   role: string | null;
   email: string | undefined;
+  fullName?: string;
+  grade?: string;
 };
 
 export type LoginResult = {
@@ -25,6 +27,7 @@ export type LoginResult = {
   role: "admin" | "assistant" | "student";
   userId: string;
   email: string;
+  fullName?: string;
   accessToken: string;
   refreshToken: string;
 };
@@ -87,7 +90,7 @@ export const loginServerFn = createServerFn({ method: "POST" })
     }
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("role")
+      .select("role, grade, full_name")
       .eq("id", authData.user.id)
       .maybeSingle();
 
@@ -96,10 +99,23 @@ export const loginServerFn = createServerFn({ method: "POST" })
       throw new Error("Could not verify account role");
     }
 
-    const role =
-      profile?.role === "admin" || profile?.role === "assistant" || profile?.role === "student"
-        ? profile.role
-        : null;
+    const isAssistant =
+      authData.user.app_metadata?.role === "assistant" ||
+      authData.user.user_metadata?.role === "assistant" ||
+      profile?.role === "assistant" ||
+      Boolean(
+        profile?.grade &&
+        (profile.grade.includes('"isAssistant":true') || profile.grade.includes('"canAdd')),
+      );
+
+    let role: "admin" | "assistant" | "student" | null = null;
+    if (isAssistant) {
+      role = "assistant";
+    } else if (profile?.role === "admin") {
+      role = "admin";
+    } else if (profile?.role === "student") {
+      role = "student";
+    }
 
     if (!role) {
       throw new Error("UNAUTHORIZED_ROLE");
@@ -128,11 +144,15 @@ export const loginServerFn = createServerFn({ method: "POST" })
       maxAge: 60 * 60 * 24 * 7,
     });
 
+    const studentFullName =
+      profile?.full_name || (authData.user.user_metadata?.full_name as string) || undefined;
+
     return {
       success: true,
       role,
       userId: authData.user.id,
       email: authData.user.email ?? data.email,
+      fullName: studentFullName,
       accessToken: authData.session.access_token,
       refreshToken: authData.session.refresh_token,
     };
@@ -202,11 +222,34 @@ export const validateAdminSession = createServerFn({ method: "GET" })
 export const validateStudentSession = createServerFn({ method: "GET" })
   .middleware([requireStudentAuth])
   .handler(async ({ context }): Promise<SessionInfo> => {
+    let fullName = (context.user.user_metadata?.full_name as string) || "";
+    let grade = (context.user.user_metadata?.grade as string) || "";
+
+    if (!fullName) {
+      try {
+        const { data: profile } = await context.supabase
+          .from("profiles")
+          .select("full_name, grade")
+          .eq("id", context.userId)
+          .maybeSingle();
+        if (profile?.full_name) {
+          fullName = profile.full_name;
+        }
+        if (profile?.grade) {
+          grade = profile.grade;
+        }
+      } catch {
+        // ignore
+      }
+    }
+
     return {
       authenticated: true,
       userId: context.userId,
       role: "student",
       email: context.user.email,
+      fullName: fullName || "طالب",
+      grade: grade || "الصف الثاني الثانوي",
     };
   });
 
